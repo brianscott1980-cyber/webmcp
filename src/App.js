@@ -1,13 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Search, Menu, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import { TabServerTransport } from '@mcp-b/transports';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import initialArticleContent from './initialArticleContent';
 import companies from './companies';
+import AnnotationsPanel from './components/AnnotationsPanel';
+import AnnotationPrompt from './components/AnnotationPrompt';
+import SnippetsPanel from './components/SnippetsPanel';
+import WatchlistPanel from './components/WatchlistPanel';
+import IndicesPanel from './components/IndicesPanel';
 
 const TradingDashboard = () => {
+  // Current user
+  const currentUser = {
+    id: 1,
+    name: 'Brian Scott',
+    avatar: 'BS',
+    role: 'Analyst'
+  };
+
   // Alert state
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
 
@@ -75,8 +88,23 @@ const TradingDashboard = () => {
           
           // Create the annotated span around the original text node
           const span = document.createElement('span');
-          span.className = 'relative group cursor-help border-b border-dotted border-blue-400';
+          span.className = 'relative group cursor-pointer border-b border-dotted border-blue-400';
           span.setAttribute('data-annotation-id', annotationId);
+          span.setAttribute('role', 'button');
+          span.setAttribute('tabindex', '0');
+          span.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Get the annotation data
+            const annotation = annotations[annotationId];
+            // Show annotation prompt with existing text
+            setAnnotationPrompt({
+              show: true,
+              text: typeof annotation === 'string' ? annotation : annotation.text,
+              selectedText: text,
+              editingId: annotationId
+            });
+          };
           // Move the original text node into the span
           const textNode = document.createTextNode(text);
           span.appendChild(textNode);
@@ -89,10 +117,14 @@ const TradingDashboard = () => {
           // Remove the original text node
           node.parentNode.removeChild(node);
           
-          // Store the annotation
+          // Store the annotation with metadata
           setAnnotations(prev => ({
             ...prev,
-            [annotationId]: annotation
+            [annotationId]: {
+              text: annotation,
+              user: currentUser,
+              timestamp: new Date().toISOString()
+            }
           }));
         }
       } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -213,8 +245,6 @@ const TradingDashboard = () => {
   const [title, setTitle] = useState('Market Summary');
   const [chartTitle, setChartTitle] = useState('BTCUSD');
   const [watchlistItems, setWatchlistItems] = useState([
-    { symbol: 'BTCUSD', price: 64444, change: 0.33, color: 'green' },
-    { symbol: 'VIX', price: 13.2, change: -0.6, color: 'red' },
     { symbol: 'XAUUSD', price: 2321.875, change: -1.62, color: 'red' },
     { symbol: 'USDJPY', price: 159.76, change: 0.54, color: 'green' },
   ]);
@@ -571,7 +601,8 @@ const TradingDashboard = () => {
                   id: Date.now(),
                   text: text,
                   summary: selectionPopup.summary,
-                  timestamp: new Date().toISOString()
+                  timestamp: new Date().toISOString(),
+                  user: currentUser
                 };
                 setSnippets(prev => [newSnippet, ...prev]);
                 showAlert('Snippet saved successfully', 'success');
@@ -890,43 +921,28 @@ const TradingDashboard = () => {
     );
   };
 
-  const AnnotationPrompt = () => {
-    const [draftText, setDraftText] = React.useState(annotationPrompt.text);
-    
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-gray-800 p-6 rounded-xl shadow-xl border-2 border-blue-500/50 max-w-md w-full mx-4">
-          <h3 className="text-lg font-medium text-white mb-4">Add Annotation</h3>
-          <textarea
-            className="w-full bg-gray-700 text-white rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your annotation here..."
-            rows="3"
-            value={draftText}
-            onChange={(e) => setDraftText(e.target.value)}
-          />
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={() => setAnnotationPrompt({ show: false, text: '', range: null })}
-              className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                if (draftText.trim()) {
-                  annotateText(annotationPrompt.selectedText, draftText.trim());
-                  showAlert('Annotation added successfully', 'success');
-                  setAnnotationPrompt({ show: false, text: '', range: null });
-                }
-              }}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
-            >
-              Add Annotation
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  const handleAnnotationSave = (text) => {
+    if (annotationPrompt.editingId) {
+      // Update existing annotation
+      setAnnotations(prev => ({
+        ...prev,
+        [annotationPrompt.editingId]: {
+          text: text,
+          user: currentUser,
+          timestamp: new Date().toISOString()
+        }
+      }));
+      showAlert('Annotation updated successfully', 'success');
+    } else {
+      // Add new annotation
+      annotateText(annotationPrompt.selectedText, text);
+      showAlert('Annotation added successfully', 'success');
+    }
+    setAnnotationPrompt({ show: false, text: '', range: null, editingId: null });
+  };
+
+  const handleAnnotationCancel = () => {
+    setAnnotationPrompt({ show: false, text: '', range: null, editingId: null });
   };
 
   return (
@@ -978,22 +994,7 @@ const TradingDashboard = () => {
       <main className="flex-grow p-6 overflow-hidden flex">
         <div className="flex-grow mr-4">
           <h2 className="text-2xl font-semibold mb-6 text-blue-400">{title}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {indices.map((index) => (
-              <div key={index.name} className="bg-gray-800 p-4 rounded-lg shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400 flex items-center">
-                    <span className="mr-2 text-lg">{index.flag}</span>
-                    {index.name}
-                  </span>
-                  <span className={`text-xs px-2 py-1 rounded ${index.color === 'green' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-                    {index.change > 0 ? '+' : ''}{index.change}%
-                  </span>
-                </div>
-                <div className="text-2xl font-bold">{index.value.toLocaleString()}</div>
-              </div>
-            ))}
-          </div>
+          {/* <IndicesPanel indices={indices} /> */}
           <div className="bg-gray-800 p-4 rounded-lg shadow-lg h-64 sm:h-96">
             <h3 className="text-lg font-medium text-blue-400 mb-4">{chartTitle}</h3>
             <ResponsiveContainer width="100%" height="90%">
@@ -1074,7 +1075,7 @@ const TradingDashboard = () => {
                       // Add the annotation text
                       const text = document.createElement('div');
                       text.className = 'text-white/90 font-medium leading-relaxed';
-                      text.textContent = annotations[annotationId];
+                      text.textContent = annotations[annotationId].text;
                       content.appendChild(text);
                       
                       // Add a decorative pointer that follows the cursor
@@ -1094,7 +1095,14 @@ const TradingDashboard = () => {
                     }
                   }}
                 />
-                {annotationPrompt.show && <AnnotationPrompt />}
+                {annotationPrompt.show && (
+                  <AnnotationPrompt 
+                    annotationPrompt={annotationPrompt}
+                    onSave={handleAnnotationSave}
+                    onCancel={handleAnnotationCancel}
+                    currentUser={currentUser}
+                  />
+                )}
                 {selectionPopup.show && (
                   <SelectionPopup 
                     text={selectionPopup.text}
@@ -1107,218 +1115,105 @@ const TradingDashboard = () => {
         
   <aside className="w-1/4 bg-gray-800 p-4 rounded-lg overflow-y-auto min-w-[250px] flex flex-col" >
           {/* Watchlist Section */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-4 text-blue-400">Watchlist</h3>
-            <ul className="space-y-2">
-              {watchlistItems.map((item) => (
-                <li 
-                  key={item.symbol} 
-                  className="flex justify-between items-center p-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
-                  onClick={() => {
-                    // Update chart data when watchlist item is clicked
-                    const newChartData = generateTickerData(item.price);
-                    setData(newChartData);
-                    setChartTitle(item.symbol);
-                    
-                    // Generate a new color based on the trend
-                    const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
-                    setStroke(strokeColor);
-                    
-                    showAlert(`Updated chart to show ${item.symbol}`, 'success');
-                  }}
-                >
-                  <div>
-                    <span className="font-medium">{item.symbol}</span>
-                    <span className="block text-sm text-gray-400">{item.price.toLocaleString()}</span>
-                  </div>
-                  <div className={`flex items-center ${item.color === 'green' ? 'text-green-400' : 'text-red-400'}`}>
-                    {item.color === 'green' ? <TrendingUp size={16} className="mr-1" /> : <TrendingDown size={16} className="mr-1" />}
-                    <span>{item.change > 0 ? '+' : ''}{item.change}%</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <WatchlistPanel 
+            watchlistItems={watchlistItems}
+            onItemClick={(item) => {
+              const newChartData = generateTickerData(item.price);
+              setData(newChartData);
+              setChartTitle(item.symbol);
+              
+              const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
+              setStroke(strokeColor);
+              
+              showAlert(`Updated chart to show ${item.symbol}`, 'success');
+            }}
+          />
 
           {/* Annotations Section */}
-          <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-xl font-semibold mb-4 text-blue-400">Annotations</h3>
-            <div className="space-y-2">
-              {Object.entries(annotations).length === 0 ? (
-                <div className="p-3 bg-gray-700 rounded-lg">
-                  <div className="text-sm text-gray-300 font-medium mb-2">
-                    No annotations yet. Select text and use the Annotate option to add notes.
-                  </div>
-                </div>
-              ) : (
-                Object.entries(annotations).map(([id, text]) => (
-                  <div 
-                    key={id}
-                    className="p-3 bg-gray-700 rounded-lg group hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
-                    onClick={() => {
-                      // Find and scroll to the annotated text
-                      const annotatedElement = document.querySelector(`[data-annotation-id="${id}"]`);
-                      if (annotatedElement) {
-                        // Add keyframe animation style if it doesn't exist
-                        if (!document.getElementById('annotation-highlight-style')) {
-                          const style = document.createElement('style');
-                          style.id = 'annotation-highlight-style';
-                          style.textContent = `
-                            @keyframes annotation-pulse {
-                              0% { 
-                                background-color: rgba(59, 130, 246, 0.2);
-                                box-shadow: 0 0 0 rgba(59, 130, 246, 0.4);
-                              }
-                              50% { 
-                                background-color: rgba(59, 130, 246, 0.4);
-                                box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-                              }
-                              100% { 
-                                background-color: rgba(59, 130, 246, 0.2);
-                                box-shadow: 0 0 0 rgba(59, 130, 246, 0.4);
-                              }
-                            }
-                          `;
-                          document.head.appendChild(style);
-                        }
-
-                        // Add highlight and animation effect
-                        annotatedElement.className = 'relative group cursor-help border-b border-dotted border-blue-400 bg-blue-500/30';
-                        annotatedElement.style.animation = 'annotation-pulse 2s ease-in-out infinite';
-                        annotatedElement.style.backgroundColor = 'rgba(59, 130, 246, 0.3)';
-                        annotatedElement.style.borderRadius = '4px';
-                        annotatedElement.style.padding = '0 4px';
-                        annotatedElement.style.margin = '0 -4px';
-                        
-                        // Scroll into view with offset for better visibility
-                        annotatedElement.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'center'
-                        });
-                        
-                        // Remove animation and restore original style after delay
-                        setTimeout(() => {
-                          annotatedElement.style.animation = '';
-                          annotatedElement.className = 'relative group cursor-help border-b border-dotted border-blue-400';
-                          annotatedElement.style.backgroundColor = '';
-                          annotatedElement.style.borderRadius = '';
-                          annotatedElement.style.padding = '';
-                          annotatedElement.style.margin = '';
-                        }, 4000); // Extended duration for more visibility
-                      }
-                    }}
-                  >
-                    <div className="text-sm text-gray-300 font-medium line-clamp-2">
-                      {text}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <AnnotationsPanel 
+            annotations={annotations} 
+            currentUser={currentUser}
+            onAnnotationClick={(id) => {
+              const annotatedElement = document.querySelector(`[data-annotation-id="${id}"]`);
+              if (annotatedElement) {
+                annotatedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                annotatedElement.classList.add('bg-blue-500/30');
+                setTimeout(() => annotatedElement.classList.remove('bg-blue-500/30'), 2000);
+              }
+            }}
+            onAnnotationEdit={(id, text) => {
+              const element = document.querySelector(`[data-annotation-id="${id}"]`);
+              if (element) {
+                setAnnotationPrompt({
+                  show: true,
+                  text: text,
+                  selectedText: element.textContent,
+                  editingId: id
+                });
+              }
+            }}
+          />
 
           {/* Snippets Section */}
-          <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-xl font-semibold mb-4 text-blue-400">Snippets</h3>
-            <div className="space-y-2">
-              {snippets.length === 0 ? (
-                <div className="p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
-                  <div className="text-sm text-gray-300 font-medium mb-2">
-                    No snippets saved yet. Select text from the article and use the Save Snippet option to create snippets.
-                  </div>
-                </div>
-              ) : (
-                snippets.map(snippet => (
-                  <div 
-                    key={snippet.id} 
-                    className="p-3 bg-gray-700 rounded-lg group hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
-                    onClick={() => {
-                      // Find the text in the article
-                      const articleDiv = document.querySelector('.prose');
-                      if (articleDiv) {
-                        const textNodes = [];
-                        const walkNodes = (node) => {
-                          if (node.nodeType === Node.TEXT_NODE) {
-                            textNodes.push(node);
-                          } else {
-                            node.childNodes.forEach(walkNodes);
-                          }
-                        };
-                        walkNodes(articleDiv);
-                        
-                        // Find the node containing our text
-                        for (let node of textNodes) {
-                          const text = node.textContent;
-                          const index = text.indexOf(snippet.text);
-                          if (index !== -1) {
-                            // Create a highlight span
-                            const span = document.createElement('span');
-                            span.textContent = snippet.text;
-                            span.className = 'relative animate-pulse bg-yellow-500/40 transition-all duration-300';
-                            // Add a glowing effect
-                            span.style.animation = 'highlight-pulse 2s ease-in-out';
-                            // Add the keyframe animation
-                            const style = document.createElement('style');
-                            style.textContent = `
-                              @keyframes highlight-pulse {
-                                0% { background-color: rgba(234, 179, 8, 0.4); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
-                                50% { background-color: rgba(234, 179, 8, 0.6); box-shadow: 0 0 20px rgba(234, 179, 8, 0.6); }
-                                100% { background-color: rgba(234, 179, 8, 0.4); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
-                              }
-                            `;
-                            document.head.appendChild(style);
-                            
-                            // Split the text node and insert our highlight
-                            const before = text.substring(0, index);
-                            const after = text.substring(index + snippet.text.length);
-                            
-                            const fragment = document.createDocumentFragment();
-                            if (before) fragment.appendChild(document.createTextNode(before));
-                            fragment.appendChild(span);
-                            if (after) fragment.appendChild(document.createTextNode(after));
-                            
-                            node.parentNode.replaceChild(fragment, node);
-                            
-                            // Scroll the span into view
-                            span.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            
-                            // Remove the highlight after a delay
-                            setTimeout(() => {
-                              // Only remove if the span still exists
-                              if (span.parentNode) {
-                                const text = span.textContent;
-                                span.parentNode.replaceChild(document.createTextNode(text), span);
-                              }
-                            }, 2000);
-                            
-                            break;
-                          }
-                        }
+          <SnippetsPanel 
+            snippets={snippets}
+            currentUser={currentUser}
+            onSnippetClick={(selectedSnippet) => {
+              // Find the text in the article
+              const articleDiv = document.querySelector('.prose');
+              if (articleDiv) {
+                // Clear any existing highlights
+                document.querySelectorAll('.snippet-highlight').forEach(el => {
+                  const parent = el.parentNode;
+                  parent.replaceChild(document.createTextNode(el.textContent), el);
+                });
+
+                const textNodes = [];
+                const walkNodes = (node) => {
+                  if (node.nodeType === Node.TEXT_NODE) {
+                    textNodes.push(node);
+                  } else {
+                    node.childNodes.forEach(walkNodes);
+                  }
+                };
+                walkNodes(articleDiv);
+                
+                // Find the node containing our text
+                for (let node of textNodes) {
+                  const text = node.textContent;
+                  const index = text.indexOf(selectedSnippet.text);
+                  if (index !== -1) {
+                    // Create a highlight span
+                    const span = document.createElement('span');
+                    span.className = 'snippet-highlight bg-yellow-300 bg-opacity-50 animate-pulse';
+                    span.textContent = selectedSnippet.text;
+                    
+                    // Split the text node and insert our highlight
+                    const before = text.substring(0, index);
+                    const after = text.substring(index + selectedSnippet.text.length);
+                    
+                    const fragment = document.createDocumentFragment();
+                    if (before) fragment.appendChild(document.createTextNode(before));
+                    fragment.appendChild(span);
+                    if (after) fragment.appendChild(document.createTextNode(after));
+                    
+                    node.parentNode.replaceChild(fragment, node);
+                    
+                    // Scroll the span into view
+                    span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Remove the highlight after a delay
+                    setTimeout(() => {
+                      if (span.parentNode) {
+                        span.parentNode.replaceChild(document.createTextNode(span.textContent), span);
                       }
-                    }}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="text-sm text-gray-300 font-medium line-clamp-2 flex-1">
-                        {snippet.text}
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent snippet click when deleting
-                          setSnippets(prev => prev.filter(s => s.id !== snippet.id));
-                        }}
-                        className="opacity-0 group-hover:opacity-100 ml-2 text-gray-500 hover:text-red-400 transition-all"
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(snippet.timestamp).toLocaleString()}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+                    }, 2000);
+                    break;
+                  }
+                }
+              }
+            }}
+          />
 
           {/* Companies Section */}
           <div className="border-t border-gray-700 pt-6">
@@ -1336,11 +1231,23 @@ const TradingDashboard = () => {
                   className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200"
                   onMouseEnter={(e) => {
                     const sentences = findCompanySentences(articleContent, company.name);
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Calculate if there's enough space above
+                    const modalHeight = 350; // Approximate height of the modal
+                    const isInTopHalf = rect.top < viewportHeight / 2;
+                    
+                    // If in top half of screen, position below; if in bottom half, position above
+                    const yPosition = isInTopHalf 
+                      ? rect.top + window.scrollY + rect.height + 10 // Below the element
+                      : rect.top + window.scrollY - modalHeight - 10; // Above the element
+                    
                     setCompanyModal({
                       show: true,
                       company: { ...company, sentences },
                       x: e.currentTarget.offsetLeft,
-                      y: e.currentTarget.offsetTop
+                      y: yPosition
                     });
                   }}
                   onMouseLeave={() => {
