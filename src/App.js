@@ -273,7 +273,7 @@ const TradingDashboard = () => {
     { name: 'Dow 30', value: 39150.34, change: 0.04, color: 'green', flag: '🇺🇸' },
     { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
   ];
-  const [title, setTitle] = useState('Market Summary');
+  const [title, setTitle] = useState('OpenAI Market Analysis Report');
   const [chartTitle, setChartTitle] = useState('BTCUSD');
   const [watchlistItems, setWatchlistItems] = useState([
     { symbol: 'XAUUSD', price: 2321.875, change: -1.62, color: 'red' },
