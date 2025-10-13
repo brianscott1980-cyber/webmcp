@@ -79,103 +79,64 @@ const ArticleSidePanel = ({
             </div>
           </div>
 
-          {/* Annotations Section */}
+          {/* Quick Access Section */}
           <div className="mt-2 border-t border-gray-700">
             <div className="p-4">
-              <h3 className="text-lg font-semibold text-blue-400 mb-3">Annotations</h3>
-              <div className="space-y-2">
-                {Object.entries(annotations).length === 0 ? (
-                  <div className="p-3 bg-gray-800/50 rounded-lg">
-                    <p className="text-sm text-gray-400">
-                      No annotations yet. Select text and use the Annotate option to add notes.
-                    </p>
-                  </div>
-                ) : (
-                  Object.entries(annotations).map(([id, annotationData]) => {
-                    const data = typeof annotationData === 'string'
-                      ? { text: annotationData, user: currentUser, timestamp: new Date().toISOString() }
-                      : annotationData;
+              <div className="space-y-4">
+                {/* Annotations Quick Access */}
+                <div>
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Annotations</h3>
+                  <div className="space-y-1">
+                    {Object.entries(annotations).length === 0 ? (
+                      <div className="text-xs text-gray-500 italic">No annotations</div>
+                    ) : (
+                      Object.entries(annotations).map(([id, annotationData]) => {
+                        const data = typeof annotationData === 'string'
+                          ? { text: annotationData, user: currentUser, timestamp: new Date().toISOString() }
+                          : annotationData;
 
-                    const formattedDate = new Date(data.timestamp).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    });
-
-                    return (
-                      <button
-                        key={id}
-                        onClick={() => onAnnotationClick(id)}
-                        className="w-full text-left p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 
-                                 transition-colors group cursor-pointer"
-                      >
-                        <div className="flex items-start gap-2">
-                          <div className="shrink-0 w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center">
-                            <span className="text-blue-400 text-xs font-medium">
-                              {data.user.avatar}
+                        return (
+                          <button
+                            key={id}
+                            onClick={() => onAnnotationClick(id)}
+                            className="w-full text-left px-2 py-1.5 rounded hover:bg-gray-800/50 
+                                     transition-colors group cursor-pointer flex items-center gap-2"
+                          >
+                            <span className="w-4 h-4 flex-shrink-0 rounded-sm bg-blue-500/10 flex items-center justify-center">
+                              <span className="text-blue-400 text-[10px]">{data.user.avatar}</span>
                             </span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm text-gray-300 line-clamp-2 group-hover:text-blue-400 transition-colors">
+                            <span className="text-xs text-gray-300 line-clamp-1 group-hover:text-blue-400 transition-colors flex-1">
                               {data.text}
-                            </div>
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="text-xs text-gray-500">{formattedDate}</span>
-                              <span className="text-xs px-2 py-1 bg-gray-700/50 rounded-full text-gray-400">
-                                {data.user.name}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Snippets Section */}
-          <div className="mt-2 border-t border-gray-700">
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-blue-400 mb-3">Saved Snippets</h3>
-              <div className="space-y-2">
-                {snippets.length === 0 ? (
-                  <div className="p-3 bg-gray-800/50 rounded-lg">
-                    <p className="text-sm text-gray-400">
-                      No snippets saved yet. Select text from the article and use the Save Snippet option to create snippets.
-                    </p>
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
-                ) : (
-                  snippets.map(snippet => {
-                    const formattedDate = new Date(snippet.timestamp).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    });
+                </div>
 
-                    return (
-                      <button
-                        key={snippet.id}
-                        onClick={() => onSnippetClick(snippet)}
-                        className="w-full text-left p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 
-                                 transition-colors group cursor-pointer"
-                      >
-                        <div className="text-sm text-gray-300 line-clamp-2 group-hover:text-blue-400 transition-colors">
-                          {snippet.text}
-                        </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-gray-500">{formattedDate}</span>
-                          <span className="text-xs px-2 py-1 bg-gray-700/50 rounded-full text-gray-400">
-                            {snippet.user?.name || 'Unknown'}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })
-                )}
+                {/* Snippets Quick Access */}
+                <div>
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Snippets</h3>
+                  <div className="space-y-1">
+                    {snippets.length === 0 ? (
+                      <div className="text-xs text-gray-500 italic">No snippets</div>
+                    ) : (
+                      snippets.map(snippet => (
+                        <button
+                          key={snippet.id}
+                          onClick={() => onSnippetClick(snippet)}
+                          className="w-full text-left px-2 py-1.5 rounded hover:bg-gray-800/50 
+                                   transition-colors group cursor-pointer"
+                        >
+                          <div className="text-xs text-gray-300 line-clamp-1 group-hover:text-blue-400 transition-colors">
+                            {snippet.text}
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
