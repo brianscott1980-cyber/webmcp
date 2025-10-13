@@ -11,6 +11,8 @@ import AnnotationPrompt from './components/AnnotationPrompt';
 import SnippetsPanel from './components/SnippetsPanel';
 import WatchlistPanel from './components/WatchlistPanel';
 import IndicesPanel from './components/IndicesPanel';
+import ArticleOverview from './components/ArticleOverview';
+import ArticleActions from './components/ArticleActions';
 
 const TradingDashboard = () => {
   // Current user
@@ -47,6 +49,22 @@ const TradingDashboard = () => {
     highlightTermInArticle();
   }, []); // Run once on mount
   const [annotationPrompt, setAnnotationPrompt] = useState({ show: false, text: '', range: null });
+
+  // Article overview state
+  const [articleOverview] = useState({
+    title: "OpenAI Market Analysis",
+    subtitle: "Comprehensive review of OpenAI's market position and future outlook",
+    date: "October 10, 2025",
+    readingTime: 12,
+    author: "Brian Scott",
+    category: "Technology",
+    keyStats: [
+      { label: "Market Share", value: "38.8%", trend: "up" },
+      { label: "Revenue Target", value: "$200B", trend: "up" },
+      { label: "Partnership Value", value: "$100M", trend: "neutral" }
+    ],
+    summary: "Analysis of OpenAI's competitive position, highlighting significant market share gains, ambitious revenue targets, and strategic partnerships shaping the company's trajectory in the AI industry."
+  });
   const [selectionPopup, setSelectionPopup] = useState({
     show: false,
     text: '',
@@ -1008,39 +1026,14 @@ const TradingDashboard = () => {
             </ResponsiveContainer>
           </div>
               {/* New reading area with summary */}
-              <div className="mt-8 bg-gray-800 rounded-lg shadow-lg p-6">
-                {/* Article action buttons */}
-                <div className="flex space-x-4 mb-6">
-                  <button 
-                    onClick={() => showAlert('You have now been subscribed to the author of this article', 'success')}
-                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-2v14h12V3H4z"/>
-                      <path d="M10 7a1 1 0 011 1v5a1 1 0 11-2 0V8a1 1 0 011-1z"/>
-                    </svg>
-                    <span>Subscribe</span>
-                  </button>
-                  <button 
-                    onClick={() => showAlert('This article has been added to your Read Later collection', 'success')}
-                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-                    </svg>
-                    <span>Save Article</span>
-                  </button>
-                  <button 
-                    onClick={() => showAlert('This article has been delivered to your inbox', 'success')}
-                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                    </svg>
-                    <span>Email to Me</span>
-                  </button>
-                </div>
+              <div className="mt-8">
+                <ArticleOverview article={articleOverview} />
+                  {/* Article action buttons */}
+                <ArticleActions 
+                  onSubscribe={() => showAlert('You have now been subscribed to the author of this article', 'success')}
+                  onSave={() => showAlert('This article has been added to your Read Later collection', 'success')}
+                  onEmail={() => showAlert('This article has been delivered to your inbox', 'success')}
+                />
                 <div 
                   onMouseUp={handleTextSelection}
                   dangerouslySetInnerHTML={{ __html: articleContent }}
