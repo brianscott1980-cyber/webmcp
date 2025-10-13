@@ -3,40 +3,64 @@ import { Menu, Clock } from 'lucide-react';
 
 const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail, readingTime = '5' }) => {
   const [isSticky, setIsSticky] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(readingTime);
   const actionRef = useRef(null);
-  const stickyTriggerRef = useRef(null);
   const initialPosRef = useRef(null);
+  const articleEndRef = useRef(null);
 
   useEffect(() => {
-    const calculateInitialPosition = () => {
+    const calculatePositions = () => {
       if (actionRef.current) {
         const rect = actionRef.current.getBoundingClientRect();
         initialPosRef.current = rect.top + window.pageYOffset;
+
+        // Find the article content end (using the prose class as reference)
+        const articleContent = document.querySelector('.prose');
+        if (articleContent) {
+          const articleRect = articleContent.getBoundingClientRect();
+          articleEndRef.current = articleRect.bottom + window.pageYOffset;
+        }
       }
     };
 
-    // Calculate initial position after a short delay to ensure proper layout
-    setTimeout(calculateInitialPosition, 100);
+    // Calculate positions after a short delay to ensure proper layout
+    setTimeout(calculatePositions, 100);
 
     const handleScroll = () => {
-      if (!initialPosRef.current) return;
+      if (!initialPosRef.current || !articleEndRef.current) return;
       
       const scrollPosition = window.pageYOffset;
+      const viewportHeight = window.innerHeight;
       const shouldBeSticky = scrollPosition > initialPosRef.current;
 
+      // Calculate reading progress
+      const totalReadableLength = articleEndRef.current - initialPosRef.current;
+      const currentProgress = Math.min(
+        Math.max(scrollPosition + viewportHeight - initialPosRef.current, 0),
+        totalReadableLength
+      );
+      const progressPercentage = currentProgress / totalReadableLength;
+      
+      // Calculate remaining time based on progress
+      const timeRemaining = Math.max(
+        Math.ceil(readingTime * (1 - progressPercentage)),
+        0
+      );
+      
+      setRemainingTime(timeRemaining);
       if (shouldBeSticky !== isSticky) {
         setIsSticky(shouldBeSticky);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', calculateInitialPosition);
+    window.addEventListener('resize', calculatePositions);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', calculateInitialPosition);
+      window.removeEventListener('resize', calculatePositions);
     };
-  }, [isSticky]);
+  }, [isSticky, readingTime]);
 
   return (
     <div>
@@ -102,12 +126,17 @@ const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail, readingTime
           </span>
         </button>
         
-        {/* Reading Time Info - Only visible when sticky */}
+        {/* Remaining Time Info - Only visible when sticky */}
         <div className="flex-1" />
         {isSticky && (
           <div className="flex items-center space-x-1.5 text-gray-400 pr-2">
             <Clock className="h-3.5 w-3.5" />
-            <span className="text-xs whitespace-nowrap">{readingTime} min read</span>
+            <span className="text-xs whitespace-nowrap">
+              {remainingTime === 0 
+                ? 'Completed'
+                : `${remainingTime} min${remainingTime === 1 ? '' : 's'} left`
+              }
+            </span>
           </div>
         )}
       </div>
