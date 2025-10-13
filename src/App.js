@@ -38,10 +38,29 @@ const TradingDashboard = () => {
   };
 
   // Article content state
+  const processArticleContent = (content) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+
+    // Find all h3 and h4 titles and add indicators
+    const titles = doc.querySelectorAll('h3:not(.text-4xl), h4');
+    titles.forEach(title => {
+      // Skip the main article title
+      if (title.textContent.trim() === "OpenAI Market Analysis Report") return;
+      
+      const iconSpan = doc.createElement('span');
+      iconSpan.className = 'inline-flex items-center ml-2';
+      iconSpan.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500/50"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+      title.appendChild(iconSpan);
+    });
+
+    return doc.body.innerHTML;
+  };
+
   const [articleContent, setArticleContent] = useState(() => {
-    // Initialize with the content and immediately highlight company names
+    // Initialize with the content and add indicators
     const content = initialArticleContent.html;
-    return content;
+    return processArticleContent(content);
   });
   const [annotations, setAnnotations] = useState({});
   const [snippets, setSnippets] = useState([]);
@@ -54,7 +73,9 @@ const TradingDashboard = () => {
       { id: 'product-innovation', title: 'Product Innovation', level: 2 },
       { id: 'market-competition', title: 'Market Competition', level: 2 }
     ]},
-    { id: 'financial-projections', title: 'Financial Projections', level: 1 }
+    { id: 'financial-projections', title: 'Financial Projections', level: 1 },
+    { id: 'market-position-strategy', title: 'Market Position & Strategy', level: 1 },
+    { id: 'risks-challenges', title: 'Risks & Challenges', level: 1 }
   ]);
   const [isTocOpen, setIsTocOpen] = useState(false);
   

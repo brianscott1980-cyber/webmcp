@@ -64,7 +64,7 @@ const initialArticleContent = {
         </ul>
       </div>
 
-      <div class="mb-12 bg-gray-800 p-6 rounded-lg border border-green-900">
+      <div id="market-position-strategy" class="mb-12 bg-gray-800 p-6 rounded-lg border border-green-900">
         <h3 class="text-2xl font-semibold text-green-400 mb-4">Market Position & Strategy</h3>
         <p class="text-gray-300 mb-4">OpenAI maintains a strong position in both consumer and enterprise markets, with:</p>
         <ul class="list-none space-y-3">
@@ -87,7 +87,7 @@ const initialArticleContent = {
         </ul>
       </div>
 
-      <div class="mb-12 bg-gray-800 p-6 rounded-lg border border-red-900">
+      <div id="risks-challenges" class="mb-12 bg-gray-800 p-6 rounded-lg border border-red-900">
         <h3 class="text-2xl font-semibold text-red-400 mb-4">Risks & Challenges</h3>
         <ul class="list-none space-y-3">
           <li class="flex items-center">
