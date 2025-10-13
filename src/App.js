@@ -1024,11 +1024,56 @@ const TradingDashboard = () => {
         isOpen={isTocOpen} 
         onClose={() => setIsTocOpen(false)}
         tableOfContents={tableOfContents}
+        snippets={snippets}
+        annotations={annotations}
+        currentUser={currentUser}
         onItemClick={(id) => {
           const element = document.getElementById(id);
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
             // Highlight the section briefly
+            element.classList.add('bg-blue-500/20');
+            setTimeout(() => {
+              element.classList.remove('bg-blue-500/20');
+            }, 2000);
+          }
+          setIsTocOpen(false);
+        }}
+        onSnippetClick={(snippet) => {
+          // Find and scroll to the snippet text
+          const content = document.querySelector('.prose');
+          if (content) {
+            const textNodes = [];
+            const walk = document.createTreeWalker(
+              content,
+              NodeFilter.SHOW_TEXT,
+              null,
+              false
+            );
+            let node;
+            while (node = walk.nextNode()) {
+              textNodes.push(node);
+            }
+            
+            for (let node of textNodes) {
+              if (node.textContent.includes(snippet.text)) {
+                node.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Highlight the containing element briefly
+                node.parentElement.classList.add('bg-blue-500/20');
+                setTimeout(() => {
+                  node.parentElement.classList.remove('bg-blue-500/20');
+                }, 2000);
+                break;
+              }
+            }
+          }
+          setIsTocOpen(false);
+        }}
+        onAnnotationClick={(id) => {
+          const element = document.querySelector(`[data-annotation-id="${id}"]`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Highlight the annotation briefly
             element.classList.add('bg-blue-500/20');
             setTimeout(() => {
               element.classList.remove('bg-blue-500/20');
