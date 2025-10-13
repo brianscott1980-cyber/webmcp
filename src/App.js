@@ -13,6 +13,7 @@ import WatchlistPanel from './components/WatchlistPanel';
 import IndicesPanel from './components/IndicesPanel';
 import ArticleOverview from './components/ArticleOverview';
 import ArticleActions from './components/ArticleActions';
+import ArticleSidePanel from './components/ArticleSidePanel';
 
 const TradingDashboard = () => {
   // Current user
@@ -44,6 +45,18 @@ const TradingDashboard = () => {
   const [annotations, setAnnotations] = useState({});
   const [snippets, setSnippets] = useState([]);
   
+  // Table of Contents state
+  const [tableOfContents, setTableOfContents] = useState([
+    { id: 'executive-summary', title: 'Executive Summary', level: 1 },
+    { id: 'key-strategic-developments', title: 'Key Strategic Developments', level: 1, children: [
+      { id: 'infrastructure-expansion', title: 'Infrastructure Expansion', level: 2 },
+      { id: 'product-innovation', title: 'Product Innovation', level: 2 },
+      { id: 'market-competition', title: 'Market Competition', level: 2 }
+    ]},
+    { id: 'financial-projections', title: 'Financial Projections', level: 1 }
+  ]);
+  const [isTocOpen, setIsTocOpen] = useState(false);
+  
   // Effect to highlight company names whenever article content changes
   React.useEffect(() => {
     highlightTermInArticle();
@@ -52,7 +65,7 @@ const TradingDashboard = () => {
 
   // Article overview state
   const [articleOverview] = useState({
-    title: "OpenAI Market Analysis",
+    title: "Article Summarisation",
     subtitle: "Comprehensive review of OpenAI's market position and future outlook",
     date: "October 10, 2025",
     readingTime: 12,
@@ -1003,11 +1016,27 @@ const TradingDashboard = () => {
             <input type="text" placeholder="Search" className="bg-gray-700 text-white rounded-full py-2 px-4 pl-10 w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           </div>
-          <button className="bg-blue-600 rounded-full p-2 hover:bg-blue-700 transition-colors duration-200">
-            <Menu className="w-5 h-5" />
-          </button>
         </div>
       </header>
+
+      {/* Table of Contents Panel */}
+      <ArticleSidePanel 
+        isOpen={isTocOpen} 
+        onClose={() => setIsTocOpen(false)}
+        tableOfContents={tableOfContents}
+        onItemClick={(id) => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Highlight the section briefly
+            element.classList.add('bg-blue-500/20');
+            setTimeout(() => {
+              element.classList.remove('bg-blue-500/20');
+            }, 2000);
+          }
+          setIsTocOpen(false);
+        }}
+      />
       
       <main className="flex-grow p-6 overflow-hidden flex">
         <div className="flex-grow mr-4">
@@ -1027,8 +1056,11 @@ const TradingDashboard = () => {
           </div>
               {/* New reading area with summary */}
               <div className="mt-8">
-                <ArticleOverview article={articleOverview} />
-                  {/* Article action buttons */}
+                <ArticleOverview 
+                  article={articleOverview}
+                  onToggleToc={() => setIsTocOpen(true)}
+                />
+                {/* Article action buttons */}
                 <ArticleActions 
                   onSubscribe={() => showAlert('You have now been subscribed to the author of this article', 'success')}
                   onSave={() => showAlert('This article has been added to your Read Later collection', 'success')}

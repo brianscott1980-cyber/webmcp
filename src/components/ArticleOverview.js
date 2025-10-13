@@ -1,12 +1,21 @@
 import React from 'react';
-import { Clock, UserCircle, Tag, Calendar } from 'lucide-react';
+import { Clock, UserCircle, Tag, Calendar, Menu } from 'lucide-react';
 
-const ArticleOverview = ({ article }) => {
+const ArticleOverview = ({ article, onToggleToc }) => {
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
       {/* Article Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">{article.title}</h2>
+        <div className="flex items-center gap-3 mb-2">
+          <button
+            onClick={onToggleToc}
+            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors"
+            aria-label="Toggle Table of Contents"
+          >
+            <Menu className="w-5 h-5 text-gray-400 hover:text-blue-400" />
+          </button>
+          <h2 className="text-2xl font-bold text-white">{article.title}</h2>
+        </div>
         <p className="text-gray-400">{article.subtitle}</p>
       </div>
 
