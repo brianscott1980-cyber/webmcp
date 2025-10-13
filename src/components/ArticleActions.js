@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu } from 'lucide-react';
 
 const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail }) => {
+  const [isSticky, setIsSticky] = useState(false);
+  const actionRef = useRef(null);
+  const stickyTriggerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+
+    if (stickyTriggerRef.current) {
+      observer.observe(stickyTriggerRef.current);
+    }
+
+    return () => {
+      if (stickyTriggerRef.current) {
+        observer.unobserve(stickyTriggerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="flex space-x-4 mb-6">
+    <div>
+      <div ref={stickyTriggerRef} className="h-px -mt-px" />
+      <div 
+        ref={actionRef}
+        className={`flex space-x-4 mb-6 z-10 bg-gray-900 py-4 transition-all duration-200 ${
+          isSticky ? 'fixed top-0 left-0 right-0 px-6 shadow-lg border-b border-gray-800' : ''
+        }`}
+      >
       <button
         onClick={onToggleToc}
         className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
@@ -41,6 +71,7 @@ const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail }) => {
         </svg>
         <span>Email to Me</span>
       </button>
+      </div>
     </div>
   );
 };
