@@ -1110,6 +1110,7 @@ const TradingDashboard = () => {
                   onSubscribe={() => showAlert('You have now been subscribed to the author of this article', 'success')}
                   onSave={() => showAlert('This article has been added to your Read Later collection', 'success')}
                   onEmail={() => showAlert('This article has been delivered to your inbox', 'success')}
+                  readingTime={articleOverview.readingTime}
                 />
                 <div 
                   onMouseUp={handleTextSelection}
