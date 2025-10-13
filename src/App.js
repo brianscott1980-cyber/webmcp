@@ -1103,10 +1103,10 @@ const TradingDashboard = () => {
               <div className="mt-8">
                 <ArticleOverview 
                   article={articleOverview}
-                  onToggleToc={() => setIsTocOpen(true)}
                 />
                 {/* Article action buttons */}
                 <ArticleActions 
+                  onToggleToc={() => setIsTocOpen(true)}
                   onSubscribe={() => showAlert('You have now been subscribed to the author of this article', 'success')}
                   onSave={() => showAlert('This article has been added to your Read Later collection', 'success')}
                   onEmail={() => showAlert('This article has been delivered to your inbox', 'success')}

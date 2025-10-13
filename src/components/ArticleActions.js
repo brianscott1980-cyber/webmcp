@@ -1,11 +1,20 @@
 import React from 'react';
+import { Menu } from 'lucide-react';
 
-const ArticleActions = ({ onSubscribe, onSave, onEmail }) => {
+const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail }) => {
   return (
     <div className="flex space-x-4 mb-6">
+      <button
+        onClick={onToggleToc}
+        className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+        aria-label="Toggle Table of Contents"
+      >
+        <Menu className="h-5 w-5" />
+        <span>Contents</span>
+      </button>
       <button 
         onClick={onSubscribe}
-        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+        className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-2v14h12V3H4z"/>
