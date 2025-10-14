@@ -6,19 +6,19 @@ const companies = [
       {
         name: "Brenda Duverce",
         title: "Private Company Research",
-        email: "brenda.duverce@jpmorgan.com",
+  email: "brenda.duverce@atlasbank.com",
         phone: "(1-212) 622-5106"
       },
       {
         name: "Lula Sheena, CFA",
         title: "Private Company Research",
-        email: "lula.sheena@jpmorgan.com",
+  email: "lula.sheena@atlasbank.com",
         phone: "(44-20) 7742-1452"
       },
       {
         name: "Aaron Steiker",
         title: "Private Company Research",
-        email: "aaron.steiker@jpmorgan.com",
+  email: "aaron.steiker@atlasbank.com",
         phone: "(1-212) 270-3679"
       }
     ],

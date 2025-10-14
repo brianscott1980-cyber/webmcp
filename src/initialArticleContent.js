@@ -3,7 +3,7 @@ const initialArticleContent = {
   <div class="max-w-4xl mx-auto px-4 py-8 bg-gray-800 shadow-lg rounded-lg border border-gray-800">
       <header class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI Market Analysis Report</h1>
-        <h2 class="text-xl text-gray-400">October 7, 2025 - J.P. Morgan Markets Research</h2>
+  <h2 class="text-xl text-gray-400">October 7, 2025 - Atlas Bank Markets Research</h2>
       </header>
       
   <div id="executive-summary" class="mb-12 bg-gray-900 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
