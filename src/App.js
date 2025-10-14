@@ -16,6 +16,7 @@ import ArticleActions from './components/ArticleActions';
 import ArticleSidePanel from './components/ArticleSidePanel';
 import RelatedArticlesPanel from './components/RelatedArticlesPanel';
 import CompanyModal from './components/CompanyModal';
+import ArticlePreviewCard from './components/ArticlePreviewCard';
 import useReadSections from './hooks/useReadSections';
 
 const TradingDashboard = () => {
@@ -847,11 +848,19 @@ const TradingDashboard = () => {
                         {/* Related Research Section */}
                         <div className="mt-2">
                           <div className="text-xs text-blue-400 font-medium uppercase tracking-wide mb-1">Related Research</div>
-                          <ul className="space-y-1">
-                            <li className="text-xs text-gray-400 hover:text-blue-400 cursor-pointer transition-colors">
-                              {`${company.name} Q3 2025 Market Analysis: Growth Prospects and Strategic Initiatives`}
-                            </li>
-                          </ul>
+                          <div className="space-y-2">
+                            <ArticlePreviewCard 
+                              article={{
+                                title: `${company.name} Q3 2025 Market Analysis: Growth Prospects and Strategic Initiatives`,
+                                date: 'Oct 12, 2025',
+                                authors: ['Sarah Anderson'],
+                                type: 'Research Report'
+                              }}
+                              onClick={() => {
+                                showAlert('Opening research report...', 'success');
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
