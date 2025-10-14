@@ -42,7 +42,7 @@ const TradingDashboard = () => {
     // Auto hide after 5 seconds
     setTimeout(() => {
       setAlert({ show: false, message: '', type: 'success' });
-    }, 5000);
+    }, 2500);
   };
 
   // Article content state
