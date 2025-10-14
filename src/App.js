@@ -17,6 +17,7 @@ import ArticleSidePanel from './components/ArticleSidePanel';
 import RelatedArticlesPanel from './components/RelatedArticlesPanel';
 import CompanyModal from './components/CompanyModal';
 import ArticlePreviewCard from './components/ArticlePreviewCard';
+import RecommendedArticlesDialog from './components/RecommendedArticlesDialog';
 import useReadSections from './hooks/useReadSections';
 
 const TradingDashboard = () => {
@@ -33,6 +34,7 @@ const TradingDashboard = () => {
 
   // Alert state
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
+  const [recommendedArticles, setRecommendedArticles] = useState({ show: false, articles: [], searchContext: '' });
 
   // Show alert message function
   const showAlert = (message, type = 'success') => {
@@ -525,6 +527,71 @@ const TradingDashboard = () => {
   }, async () => {
     showAlert('This article has been delivered to your inbox', 'success');
     return { content: [{ type: 'text', text: 'Article sent to email.' }] };
+  });
+
+  server.tool('getRecommendedArticles', 'Get article recommendations based on current content', {
+  }, async () => {
+    // Extract relevant context from the current article
+    const visibleCompanyNames = companies
+      .filter(company => articleContent.toLowerCase().includes(company.name.toLowerCase()))
+      .map(company => company.name);
+
+    // Get visible section headers for topics/categories
+    const headers = document.querySelectorAll('.prose h3, .prose h4');
+    const visibleTopics = Array.from(headers)
+      .filter(header => {
+        const rect = header.getBoundingClientRect();
+        return rect.top >= 0 && rect.top <= window.innerHeight;
+      })
+      .map(header => header.textContent);
+
+    // Create search context description
+    const searchContext = [
+      visibleCompanyNames.length > 0 && `Companies: ${visibleCompanyNames.join(', ')}`,
+      visibleTopics.length > 0 && `Topics: ${visibleTopics.join(', ')}`
+    ].filter(Boolean).join(' | ');
+
+    // Generate mock recommended articles based on context
+    const recommendedArticles = [
+      {
+        title: `${visibleCompanyNames[0] || 'Industry'} Market Analysis: Latest Trends and Insights`,
+        date: 'Oct 14, 2025',
+        authors: ['Michael Chen'],
+        type: 'Analysis'
+      },
+      {
+        title: `${visibleTopics[0] || 'Market'} Deep Dive: Opportunities and Challenges`,
+        date: 'Oct 13, 2025',
+        authors: ['Sarah Anderson'],
+        type: 'Research'
+      },
+      {
+        title: `Competitive Landscape: ${visibleCompanyNames.slice(0, 2).join(' vs ')}`,
+        date: 'Oct 12, 2025',
+        authors: ['David Thompson'],
+        type: 'Industry Report'
+      },
+      {
+        title: `${visibleTopics[1] || 'Strategic'} Outlook 2026: Key Predictions`,
+        date: 'Oct 11, 2025',
+        authors: ['Emma Rodriguez'],
+        type: 'Forecast'
+      }
+    ];
+
+    // Show the recommendations dialog
+    setRecommendedArticles({
+      show: true,
+      articles: recommendedArticles,
+      searchContext
+    });
+
+    return { 
+      content: [{ 
+        type: 'text', 
+        text: `Found 4 relevant articles based on current content. Context: ${searchContext}` 
+      }] 
+    };
   });
 
   server.tool('showCompany', 'Show company profile preview', {
@@ -1389,6 +1456,15 @@ const TradingDashboard = () => {
         </aside>
       </main>
       
+      {/* Recommended Articles Dialog */}
+      {recommendedArticles.show && (
+        <RecommendedArticlesDialog
+          articles={recommendedArticles.articles}
+          searchContext={recommendedArticles.searchContext}
+          onClose={() => setRecommendedArticles(prev => ({ ...prev, show: false }))}
+        />
+      )}
+
       {/* Company Modal */}
       {companyModal.show && companyModal.company && (
         <div 
