@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import ArticlePreviewCard from './ArticlePreviewCard';
 
-const RelatedArticlesPanel = ({ articles = [], onArticleClick }) => {
+const RelatedArticlesPanel = ({ articles = [], onArticleClick, currentUser }) => {
   return (
     <div className="border-t border-gray-700 mt-12 pt-8">
       <div className="mb-6">
@@ -21,21 +21,46 @@ const RelatedArticlesPanel = ({ articles = [], onArticleClick }) => {
       </div>
       
       {/* View All Links */}
-      <div className="mt-6 flex justify-center space-x-8">
-        <button 
-          className="inline-flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
-          onClick={() => onArticleClick('viewOpenAI')}
-        >
-          <span>View all OpenAI Research</span>
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <button 
-          className="inline-flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
-          onClick={() => onArticleClick('viewAuthor')}
-        >
-          <span>View all Author Research</span>
-          <ArrowRight className="h-4 w-4" />
-        </button>
+      <div className="mt-8 grid md:grid-cols-2 gap-6">
+        {/* OpenAI Research */}
+        <div className="bg-gray-800/50 rounded-lg p-6 hover:bg-gray-800/70 transition-colors group cursor-pointer"
+             onClick={() => onArticleClick('viewOpenAI')}>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                View all OpenAI Research
+              </h3>
+              <p className="text-sm text-gray-400 mb-3 leading-relaxed">
+                Explore our comprehensive collection of OpenAI market analysis, research papers, 
+                and technical insights. Updated daily with the latest developments.
+              </p>
+              <div className="text-xs text-gray-500">
+                247 articles • Updated 2 hours ago
+              </div>
+            </div>
+            <ArrowRight className="h-8 w-8 text-gray-500 group-hover:text-blue-400 transition-colors" />
+          </div>
+        </div>
+
+        {/* Author Research */}
+        <div className="bg-gray-800/50 rounded-lg p-6 hover:bg-gray-800/70 transition-colors group cursor-pointer"
+             onClick={() => onArticleClick('viewAuthor')}>
+          <div className="flex items-start justify-between">
+            <div>
+                            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                View all by Brenda Duverce
+              </h3>
+              <p className="text-sm text-gray-400 mb-3 leading-relaxed">
+                Lead AI & Technology Analyst specializing in OpenAI, AGI developments, and emerging AI markets. 
+                Regular coverage of AI infrastructure, market dynamics, and competitive analysis.
+              </p>
+              <div className="text-xs text-gray-500">
+                183 articles • Latest: OpenAI Q3 Market Analysis
+              </div>
+            </div>
+            <ArrowRight className="h-8 w-8 text-gray-500 group-hover:text-blue-400 transition-colors" />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1225,6 +1225,7 @@ const TradingDashboard = () => {
                   <RelatedArticlesPanel 
                     articles={relatedArticles}
                     onArticleClick={handleArticleClick}
+                    currentUser={currentUser}
                   />
                 </div>
                 
