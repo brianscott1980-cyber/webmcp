@@ -368,11 +368,11 @@ const TradingDashboard = () => {
     { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
   ];
   const [title, setTitle] = useState('OpenAI Market Analysis Report');
-  const [chartTitle, setChartTitle] = useState('BTCUSD');
   const [watchlistItems, setWatchlistItems] = useState([
     { symbol: 'NVDA', price: 2321.875, change: -1.62, color: 'red' },
     { symbol: 'ORCL', price: 159.76, change: 0.54, color: 'green' },
   ]);
+  const [chartTitle, setChartTitle] = useState(watchlistItems[0].symbol);
   // Server and transport initialization
   const server = new McpServer({
     name: 'trading-server',
