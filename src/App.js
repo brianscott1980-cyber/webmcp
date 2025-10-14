@@ -1253,10 +1253,22 @@ const TradingDashboard = () => {
 
                 {/* Article action buttons */}
                 <ArticleActions 
-                  onToggleToc={() => setIsTocOpen(true)}
-                  onSubscribe={() => showAlert('You have now been subscribed to the author of this article', 'success')}
-                  onSave={() => showAlert('This article has been added to your Read Later collection', 'success')}
-                  onEmail={() => showAlert('This article has been delivered to your inbox', 'success')}
+                  onToggleToc={() => {
+                    trackGAEvent('article_options_click', { option: 'toc' });
+                    setIsTocOpen(true);
+                  }}
+                  onSubscribe={() => {
+                    trackGAEvent('article_options_click', { option: 'subscribe' });
+                    showAlert('You have now been subscribed to the author of this article', 'success');
+                  }}
+                  onSave={() => {
+                    trackGAEvent('article_options_click', { option: 'save' });
+                    showAlert('This article has been added to your Read Later collection', 'success');
+                  }}
+                  onEmail={() => {
+                    trackGAEvent('article_options_click', { option: 'email' });
+                    showAlert('This article has been delivered to your inbox', 'success');
+                  }}
                   readingTime={articleOverview.readingTime}
                   activeCompany={visibleCompany}
                   activeMarketNews={activeMarketNews}
