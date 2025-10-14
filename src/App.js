@@ -29,7 +29,6 @@ const TradingDashboard = () => {
       window.gtag('event', event, params);
     }
   };
-  window.trackGAEvent = trackGAEvent;
   // Google Analytics Tracking
   useEffect(() => {
     // Only inject once
