@@ -15,6 +15,7 @@ import ArticleOverview from './components/ArticleOverview';
 import ArticleActions from './components/ArticleActions';
 import ArticleSidePanel from './components/ArticleSidePanel';
 import RelatedArticlesPanel from './components/RelatedArticlesPanel';
+import CompanyModal from './components/CompanyModal';
 import useReadSections from './hooks/useReadSections';
 
 const TradingDashboard = () => {
@@ -166,9 +167,7 @@ const TradingDashboard = () => {
   
   const [companyModal, setCompanyModal] = useState({
     show: false,
-    company: null,
-    x: 0,
-    y: 0
+    company: null
   });
   const activeCardRef = useRef(null);
   const closeTimerRef = useRef(null);
@@ -486,6 +485,66 @@ const TradingDashboard = () => {
     return { content: [{ type: 'text', text: 'Article sent to email.' }] };
   });
 
+  server.tool('showCompany', 'Show company profile preview', {
+    companyName: z.string()
+  }, async ({ companyName }) => {
+    console.log('showCompany called with:', { companyName });
+
+    // Find the company in our companies array
+    let company = Array.isArray(companies) ? companies.find(c => c?.name?.toLowerCase() === companyName.toLowerCase()) : null;
+    console.log('Existing company found:', company ? 'yes' : 'no');
+
+    
+    // If company not found, generate a fake one
+    if (!company) {
+      console.log('Generating fake company data...');
+      const analysts = [  
+        {
+          name: "John Smith",
+          title: "Research Analyst",
+          email: "john.smith@example.com",
+          phone: "(1-555) 555-0123"
+        }
+      ];
+      
+      // Generate random rating and target price
+      const ratings = ["Overweight", "Neutral", "Underweight"];
+      const rating = ratings[Math.floor(Math.random() * ratings.length)];
+      const targetPrice = "$" + (Math.floor(Math.random() * 900) + 100);
+      
+      console.log('Generated rating and price:', { rating, targetPrice });
+      
+      company = {
+        name: companyName,
+        type: "Emerging Technology",
+        analysts,
+        rating,
+        targetPrice,
+        partnerships: [
+          {
+            partner: "Industry Leader",
+            details: "Strategic Partnership",
+            value: "$" + (Math.floor(Math.random() * 90) + 10) + "mn"
+          }
+        ]
+      };
+    }
+
+    // Clear any active card reference since this is a direct tool call
+    activeCardRef.current = null;
+
+    // Show the company preview
+    const sentences = findCompanySentences(articleContent, company.name);
+    setCompanyModal({
+      show: true,
+      company: { ...company, sentences }
+    });
+
+    return { 
+      content: [{ type: 'text', text: `Showing profile for ${company.name}` }]
+    };
+  });
+
     const generateTextSummary = (text) => {
     const summary = `Selected Text Summary: ${text.slice(0, 50)}...`;
     return summary;
@@ -767,285 +826,6 @@ const TradingDashboard = () => {
   server.connect(new TabServerTransport({ 
     allowedOrigins: ["*"] 
   }));
-  // Annotation Prompt Component
-  // Company Modal Component
-  const CompanyModal = ({ company, x, y }) => {
-    const modalRef = useRef(null);
-
-    // Function to generate relevant article titles based on company info
-    const generateRelatedArticles = (company) => {
-      const topics = [
-        'earnings', 'strategy', 'market share', 'innovation', 
-        'partnerships', 'expansion', 'technology', 'sustainability'
-      ];
-      const timeframes = [
-        'Q3 2025', 'H2 2025', '2026 Outlook', 'Next 5 Years'
-      ];
-      
-      return [
-        {
-          id: 1,
-          title: `${company.name} ${topics[Math.floor(Math.random() * topics.length)]}: ${timeframes[Math.floor(Math.random() * timeframes.length)]} Analysis`,
-          date: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleDateString()
-        }
-      ];
-    };
-
-    useEffect(() => {
-      if (!modalRef.current || !activeCardRef.current) return;
-      
-      // Get the card's bounding rect
-      const cardRect = activeCardRef.current.getBoundingClientRect();
-      const modalRect = modalRef.current.getBoundingClientRect();
-      
-      // Calculate center position
-      const centerY = cardRect.top + (cardRect.height / 2) - (modalRect.height / 2);
-      
-      // Set the modal's position directly through style
-      modalRef.current.style.top = `${centerY}px`;
-      modalRef.current.style.left = `${cardRect.left - modalRect.width - 16}px`; // 16px gap
-      
-    }, [x, y]);
-
-    const scrollToSentence = (sentence) => {
-      // Create a temporary container to find the sentence in the article
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = articleContent;
-      
-      const walker = document.createTreeWalker(
-        tempDiv,
-        NodeFilter.SHOW_TEXT,
-        null,
-        false
-      );
-
-      let node;
-      while (node = walker.nextNode()) {
-        if (node.textContent.includes(sentence)) {
-          // Find the actual node in the document
-          const articleContainer = document.querySelector('.prose');
-          const articleWalker = document.createTreeWalker(
-            articleContainer,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-          );
-
-          let articleNode;
-          while (articleNode = articleWalker.nextNode()) {
-            if (articleNode.textContent.includes(sentence)) {
-              // Create a wrapper span for the sentence
-              const span = document.createElement('span');
-              span.className = 'bg-yellow-500/50 animate-pulse transition-colors duration-500';
-              const range = document.createRange();
-              range.setStart(articleNode, articleNode.textContent.indexOf(sentence));
-              range.setEnd(articleNode, articleNode.textContent.indexOf(sentence) + sentence.length);
-              range.surroundContents(span);
-
-              // Scroll the sentence into view
-              span.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-              // Remove the highlight after animation
-              setTimeout(() => {
-                const parent = span.parentNode;
-                parent.replaceChild(document.createTextNode(span.textContent), span);
-              }, 2000);
-
-              break;
-            }
-          }
-          break;
-        }
-      }
-
-      // Close the modal
-      setCompanyModal(prev => ({ ...prev, show: false }));
-    };
-
-    return (
-      <div
-        ref={modalRef}
-        className="fixed z-50 bg-gray-800 rounded-lg shadow-2xl border border-blue-500/50 p-2.5 backdrop-blur-sm bg-opacity-95 max-w-sm"
-        style={{
-          transition: 'all 0.2s ease-out',
-          transform: 'translateY(-50%)'
-        }}
-      >
-        <div className="space-y-2.5">
-          <div className="flex justify-between items-start">
-            <h3 className="text-xs font-semibold text-blue-400">{company.name} Mentions</h3>
-            <button
-              onClick={() => setCompanyModal(prev => ({ ...prev, show: false }))}
-              className="text-[11px] text-gray-400 hover:text-white transition-colors"
-            >
-              ✕
-            </button>
-          </div>
-          
-          {/* Mentions Section */}
-          <div className="space-y-1.5 max-h-[150px] overflow-y-auto">
-            {company.sentences.map((sentence, index) => (
-              <div
-                key={index}
-                onClick={() => scrollToSentence(sentence)}
-                className="p-2 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors cursor-pointer"
-              >
-                <div 
-                  className="text-xs text-gray-200"
-                  dangerouslySetInnerHTML={{
-                    __html: sentence.trim()
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Lead Analyst Section */}
-          <div className="border-t border-gray-700 pt-2.5">
-            <h4 className="text-xs font-semibold text-blue-400 mb-2">Lead Analyst</h4>
-            <div className="flex items-center gap-2.5 p-2 bg-gray-700/50 rounded-lg group hover:bg-gray-600/50 transition-colors">
-              <div className="relative">
-                <img 
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(company.analysts[0].name)}&background=random&color=fff&size=32`}
-                  alt={company.analysts[0].name}
-                  className="w-8 h-8 rounded-lg"
-                />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border border-gray-800 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h5 className="text-xs font-medium text-gray-200">{company.analysts[0].name}</h5>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">Lead Analyst</span>
-                </div>
-                <p className="text-[11px] text-gray-400 mt-0.5">Coverage: {company.type}</p>
-                <div className="mt-2">
-                  <a 
-                    href="#"
-                    className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      showAlert('Research portal access requested', 'success');
-                    }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-                    </svg>
-                    View Latest Research
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Related Articles Section */}
-          <div className="border-t border-gray-700 pt-4">
-            <h4 className="text-sm font-semibold text-blue-400 mb-3">Related Articles</h4>
-            <div className="space-y-3">
-              {generateRelatedArticles(company).map(article => (
-                <div 
-                  key={article.id}
-                  className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors cursor-pointer group"
-                >
-                  {/* Article Icon */}
-                  <div className="shrink-0 w-8 h-8 bg-gray-700 rounded-lg overflow-hidden relative group-hover:bg-gray-600 transition-colors">
-                    {/* Document Preview Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-700 group-hover:from-blue-500/20 group-hover:to-gray-600 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute top-1.5 left-1.5 text-gray-500/50 group-hover:text-blue-400/50 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                      </svg>
-                    </div>
-                    {/* Text Lines */}
-                    <div className="absolute bottom-1.5 left-2 right-2 space-y-1">
-                      <div className="h-0.5 w-6 bg-gray-500/50 group-hover:bg-blue-400/50 transition-colors rounded"></div>
-                      <div className="h-0.5 w-4 bg-gray-500/30 group-hover:bg-blue-400/30 transition-colors rounded"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Article Content */}
-                  <div className="flex-1">
-                    <h5 className="text-xs text-gray-200 group-hover:text-blue-400 transition-colors line-clamp-2">
-                      {article.title}
-                    </h5>
-                    <span className="text-[11px] text-gray-400 mt-0.5 block">
-                      {article.date}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Subscription Options Section */}
-          <div className="border-t border-gray-700 pt-2.5 space-y-2">
-            <h4 className="text-xs font-semibold text-blue-400 mb-2">Subscriptions</h4>
-            
-            {/* Company Subscription */}
-            <div className="flex items-center justify-between p-2 bg-gray-700/50 rounded-lg group hover:bg-gray-600/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1.707.707L10 12.414l-4.293 4.293A1 1 0 014 16V4zm5 0a1 1 0 10-2 0v2a1 1 0 102 0V4zm5 0a1 1 0 10-2 0v2a1 1 0 102 0V4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-200">Follow {company.name}</div>
-                  <div className="text-xs text-gray-400">Approx. 13 article p/month</div>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  showAlert(`Now following ${company.name}`, 'success');
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors text-xs ml-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                </svg>
-                Follow
-              </button>
-            </div>
-
-            {/* Analyst Subscription */}
-            <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg group hover:bg-gray-600/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <img 
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(company.analysts[0].name)}&background=random&color=fff&size=32`}
-                    alt={company.analysts[0].name}
-                    className="w-8 h-8 rounded-lg"
-                  />
-                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full border border-gray-800 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2 text-white" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-200">Follow {company.analysts[0].name}</div>
-                  <div className="text-[11px] text-gray-400">Approx. 4 articles p/month</div>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  showAlert(`Now following ${company.analysts[0].name}`, 'success');
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors text-xs ml-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                </svg>
-                Follow
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const handleAnnotationSave = (text) => {
     if (annotationPrompt.editingId) {
@@ -1069,6 +849,15 @@ const TradingDashboard = () => {
 
   const handleAnnotationCancel = () => {
     setAnnotationPrompt({ show: false, text: '', range: null, editingId: null });
+  };
+
+  // Function to programmatically show company profile preview
+  const showCompanyPreview = (company) => {
+    const sentences = findCompanySentences(articleContent, company.name);
+    setCompanyModal({
+      show: true,
+      company: { ...company, sentences }
+    });
   };
 
   return (
@@ -1413,23 +1202,10 @@ const TradingDashboard = () => {
                       // Only proceed if we're still hovering the same element
                       if (target.matches(':hover')) {
                         const sentences = findCompanySentences(articleContent, company.name);
-                        const rect = target.getBoundingClientRect();
-                        const viewportHeight = window.innerHeight;
-                        
-                        // Calculate if there's enough space above
-                        const modalHeight = 350; // Approximate height of the modal
-                        const isInTopHalf = rect.top < viewportHeight / 2;
-                        
-                        // If in top half of screen, position below; if in bottom half, position above
-                        const yPosition = isInTopHalf 
-                          ? rect.top + window.scrollY + rect.height + 10 // Below the element
-                          : rect.top + window.scrollY - modalHeight - 10; // Above the element
                         
                         setCompanyModal({
                           show: true,
-                          company: { ...company, sentences },
-                          x: target.offsetLeft,
-                          y: yPosition
+                          company: { ...company, sentences }
                         });
                       }
                     }, 1000); // 1 second delay
@@ -1550,14 +1326,16 @@ const TradingDashboard = () => {
       {/* Company Modal */}
       {companyModal.show && companyModal.company && (
         <div 
-          className="modal-hover-zone"
+          className="modal-hover-zone fixed inset-0 flex items-center justify-center z-50"
           onMouseEnter={clearCloseTimer}
           onMouseLeave={startCloseTimer}
         >
+          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setCompanyModal(prev => ({ ...prev, show: false }))} />
           <CompanyModal 
-            company={companyModal.company}
-            x={companyModal.x}
-            y={companyModal.y}
+            company={companyModal.company} 
+            onClose={() => setCompanyModal(prev => ({ ...prev, show: false }))}
+            articleContent={articleContent}
+            showAlert={showAlert}
           />
         </div>
       )}
