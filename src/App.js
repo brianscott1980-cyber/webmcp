@@ -1271,6 +1271,12 @@ const TradingDashboard = () => {
                   trackSubscribeClick={(type, name) => {
                     trackGAEvent('subscribe_click', { type, name });
                   }}
+                  trackSaveClick={(type, name) => {
+                    trackGAEvent('save_article_click', { type, name });
+                  }}
+                  trackTocClick={(type, name) => {
+                    trackGAEvent('toc_open_click', { type, name });
+                  }}
                   readingTime={articleOverview.readingTime}
                   activeCompany={visibleCompany}
                   activeMarketNews={activeMarketNews}

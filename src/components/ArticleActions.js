@@ -12,7 +12,9 @@ const ArticleActions = ({
   onSubscribeCompany = () => {},
   onSubscribeAnalyst = () => {},
   onOpenMarketNews = () => {},
-  trackSubscribeClick = () => {}
+  trackSubscribeClick = () => {},
+  trackSaveClick = () => {},
+  trackTocClick = () => {}
 }) => {
   const [isSticky, setIsSticky] = useState(false);
   const [remainingTime, setRemainingTime] = useState(readingTime);
@@ -100,7 +102,10 @@ const ArticleActions = ({
         }`}
       >
         <button
-          onClick={onToggleToc}
+          onClick={e => {
+            trackTocClick('main', 'toc');
+            onToggleToc(e);
+          }}
           className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
             isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
           }`}
@@ -129,7 +134,10 @@ const ArticleActions = ({
           )}
         </button>
         <button 
-          onClick={onSave}
+          onClick={e => {
+            trackSaveClick('main', 'article');
+            onSave(e);
+          }}
           className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
             isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
           }`}
