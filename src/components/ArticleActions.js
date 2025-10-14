@@ -7,13 +7,27 @@ const ArticleActions = ({
   onSave, 
   onEmail, 
   readingTime = '5',
-  activeCompany = null 
+  activeCompany = null,
+  onSubscribeCompany = () => {},
+  onSubscribeAnalyst = () => {}
 }) => {
   const [isSticky, setIsSticky] = useState(false);
   const [remainingTime, setRemainingTime] = useState(readingTime);
+  const [subscriptionAlert, setSubscriptionAlert] = useState(null);
   const actionRef = useRef(null);
   const initialPosRef = useRef(null);
   const articleEndRef = useRef(null);
+  
+  const handleSubscribe = (type, name) => {
+    setSubscriptionAlert({ type, name });
+    if (type === 'company') {
+      onSubscribeCompany(activeCompany);
+    } else {
+      onSubscribeAnalyst(activeCompany.analysts[0]);
+    }
+    // Clear alert after 3 seconds
+    setTimeout(() => setSubscriptionAlert(null), 3000);
+  };
 
   useEffect(() => {
     const calculatePositions = () => {
@@ -145,7 +159,24 @@ const ArticleActions = ({
           >
             {activeCompany && (
               <>
-                <span className="text-xs font-medium">{activeCompany.name}</span>
+                {subscriptionAlert && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg text-xs shadow-lg transition-opacity duration-300">
+                    Subscribed to {subscriptionAlert.name} {subscriptionAlert.type === 'analyst' ? 'analysis' : 'updates'}
+                  </div>
+                )}
+                <div className="flex items-center">
+                  <span className="text-xs font-medium">{activeCompany.name}</span>
+                  <button 
+                    onClick={() => handleSubscribe('company', activeCompany.name)}
+                    className="ml-1.5 p-0.5 hover:bg-gray-700 rounded transition-colors"
+                    aria-label={`Subscribe to ${activeCompany.name} updates`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400 hover:text-gray-200" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                    </svg>
+                  </button>
+                </div>
                 {activeCompany.targetPrice && (
                   <>
                     <span className="text-gray-500">•</span>
@@ -155,7 +186,19 @@ const ArticleActions = ({
                 {activeCompany.analysts && activeCompany.analysts[0] && (
                   <>
                     <span className="text-gray-500">•</span>
-                    <span className="text-xs">{activeCompany.analysts[0].name}</span>
+                    <div className="flex items-center">
+                      <span className="text-xs">{activeCompany.analysts[0].name}</span>
+                      <button 
+                        onClick={() => handleSubscribe('analyst', activeCompany.analysts[0].name)}
+                        className="ml-1.5 p-0.5 hover:bg-gray-700 rounded transition-colors"
+                        aria-label={`Subscribe to ${activeCompany.analysts[0].name} updates`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400 hover:text-gray-200" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                          <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                        </svg>
+                      </button>
+                    </div>
                   </>
                 )}
               </>
