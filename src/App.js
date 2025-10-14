@@ -981,9 +981,8 @@ const TradingDashboard = () => {
       )}
       <header className="bg-gray-800 p-4 flex items-center justify-between">
         <div className="flex items-center space-x-6">
-          <span className="text-2xl font-bold text-blue-500">TY</span>
           <nav className="hidden md:flex space-x-6">
-            {['Products', 'Community', 'Markets', 'News', 'Brokers'].map((item) => (
+            {['My Content', 'My Research', 'Economics', 'Market Strategy', 'Rates', 'Equity'].map((item) => (
               <a key={item} href="#" className="text-gray-300 hover:text-blue-400 transition-colors duration-200">{item}</a>
             ))}
           </nav>
@@ -1181,9 +1180,9 @@ const TradingDashboard = () => {
                 )}
               </div>
         </div>
-        
-  <aside className="w-1/4 bg-gray-800 p-4 rounded-lg overflow-y-auto min-w-[250px] flex flex-col" >
-          
+
+  <aside className="w-1/4 bg-gray-800 p-4 mt-16 rounded-lg overflow-y-auto min-w-[250px] flex flex-col" >
+
 
           {/* Annotations Section */}
           <AnnotationsPanel 
