@@ -8,8 +8,10 @@ const ArticleActions = ({
   onEmail, 
   readingTime = '5',
   activeCompany = null,
+  activeMarketNews = null,
   onSubscribeCompany = () => {},
-  onSubscribeAnalyst = () => {}
+  onSubscribeAnalyst = () => {},
+  onOpenMarketNews = () => {}
 }) => {
   const [isSticky, setIsSticky] = useState(false);
   const [remainingTime, setRemainingTime] = useState(readingTime);
@@ -149,11 +151,12 @@ const ArticleActions = ({
           )}
         </button>
         
-        {/* Center area for company details when sticky */}
-        <div className="flex-1 flex justify-center overflow-hidden">
+        {/* Center area for company details or market news when sticky */}
+        <div className="flex-1 flex justify-center overflow-hidden relative">
+          {/* Company Information */}
           <div 
-            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out
-              ${isSticky && activeCompany 
+            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute
+              ${isSticky && activeCompany
                 ? 'translate-y-0 opacity-100' 
                 : '-translate-y-full opacity-0'}`}
           >
@@ -202,6 +205,31 @@ const ArticleActions = ({
                   </>
                 )}
               </>
+            )}
+          </div>
+          
+          {/* Market Competition News */}
+          <div 
+            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute
+              ${isSticky && activeMarketNews && !activeCompany
+                ? 'translate-y-0 opacity-100' 
+                : '-translate-y-full opacity-0'}`}
+          >
+            {activeMarketNews && (
+              <div className="flex items-center space-x-3">
+                <span className="text-xs text-gray-400">In the news:</span>
+                <span className="text-xs font-medium">{activeMarketNews.title}</span>
+                <button 
+                  onClick={() => onOpenMarketNews(activeMarketNews)}
+                  className="p-0.5 hover:bg-gray-700 rounded transition-colors"
+                  aria-label="Open market news article"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400 hover:text-gray-200" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                  </svg>
+                </button>
+              </div>
             )}
           </div>
         </div>

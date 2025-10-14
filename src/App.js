@@ -27,6 +27,9 @@ const TradingDashboard = () => {
     role: 'Analyst'
   };
 
+  // Market news state
+  const [activeMarketNews, setActiveMarketNews] = useState(null);
+
   // Alert state
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
 
@@ -43,6 +46,44 @@ const TradingDashboard = () => {
   const processArticleContent = (content, readSections = {}) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
+
+    // Market competition news examples
+    const marketNews = [
+      {
+        id: 'claude-competition',
+        title: "Claude Opus 4.1 achieves 47.6% win rate against human experts",
+        section: 'market-competition',
+        content: "Notable competition from Anthropic's Claude Opus 4.1 (47.6% win/tie rate)",
+        url: '#market-competition'
+      },
+      {
+        id: 'nvidia-partnership',
+        title: "OpenAI signs $100bn NVIDIA partnership for computing expansion",
+        section: 'infrastructure-expansion',
+        content: "$100bn strategic partnership with NVIDIA for 10GW computing systems deployment",
+        url: '#infrastructure-expansion'
+      }
+    ];
+
+    // Function to check if section is in view
+    const checkMarketNewsVisibility = () => {
+      const sections = marketNews.map(news => doc.getElementById(news.section));
+      const visibleSection = sections.find(section => {
+        if (!section) return false;
+        const rect = section.getBoundingClientRect();
+        return rect.top >= 0 && rect.top <= window.innerHeight;
+      });
+      
+      if (visibleSection) {
+        const relevantNews = marketNews.find(news => news.section === visibleSection.id);
+        setActiveMarketNews(relevantNews);
+      } else {
+        setActiveMarketNews(null);
+      }
+    };
+
+    // Add scroll event listener for market news detection
+    window.addEventListener('scroll', checkMarketNewsVisibility);
 
     // Find all h3 and h4 titles and add indicators
     const titles = doc.querySelectorAll('h3:not(.text-4xl), h4');
@@ -1051,6 +1092,13 @@ const TradingDashboard = () => {
                   onEmail={() => showAlert('This article has been delivered to your inbox', 'success')}
                   readingTime={articleOverview.readingTime}
                   activeCompany={visibleCompany}
+                  activeMarketNews={activeMarketNews}
+                  onOpenMarketNews={(news) => {
+                    const element = document.getElementById(news.section);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                 />
                 <div className="article-content">
                   {/* Main Article Content */}
