@@ -15,6 +15,7 @@ import ArticleOverview from './components/ArticleOverview';
 import ArticleActions from './components/ArticleActions';
 import ArticleSidePanel from './components/ArticleSidePanel';
 import RelatedArticlesPanel from './components/RelatedArticlesPanel';
+import useReadSections from './hooks/useReadSections';
 
 const TradingDashboard = () => {
   // Current user
@@ -38,7 +39,7 @@ const TradingDashboard = () => {
   };
 
   // Article content state
-  const processArticleContent = (content) => {
+  const processArticleContent = (content, readSections = {}) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
 
@@ -48,24 +49,21 @@ const TradingDashboard = () => {
       // Skip the main article title
       if (title.textContent.trim() === "OpenAI Market Analysis Report") return;
       
+      // Find the section ID from the parent div
+      const sectionDiv = title.closest('div[id]');
+      const sectionId = sectionDiv ? sectionDiv.id : '';
+      const isRead = readSections[sectionId] || false;
+      
       const iconSpan = doc.createElement('span');
       iconSpan.className = 'inline-flex items-center ml-2';
-      iconSpan.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500/50"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+      iconSpan.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${isRead ? 'text-green-400' : 'text-gray-500/50'} transition-colors duration-300"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
       title.appendChild(iconSpan);
     });
 
     return doc.body.innerHTML;
   };
 
-  const [articleContent, setArticleContent] = useState(() => {
-    // Initialize with the content and add indicators
-    const content = initialArticleContent.html;
-    return processArticleContent(content);
-  });
-  const [annotations, setAnnotations] = useState({});
-  const [snippets, setSnippets] = useState([]);
-  
-  // Table of Contents state
+    // Table of Contents state
   const [tableOfContents, setTableOfContents] = useState([
     { id: 'executive-summary', title: 'Executive Summary', level: 1 },
     { id: 'key-strategic-developments', title: 'Key Strategic Developments', level: 1, children: [
@@ -77,7 +75,25 @@ const TradingDashboard = () => {
     { id: 'market-position-strategy', title: 'Market Position & Strategy', level: 1 },
     { id: 'risks-challenges', title: 'Risks & Challenges', level: 1 }
   ]);
+  
+  
   const [isTocOpen, setIsTocOpen] = useState(false);
+
+  const [articleContent, setArticleContent] = useState(() => {
+    return processArticleContent(initialArticleContent.html, {});
+  });
+
+
+  // Track read sections
+  const readSections = useReadSections(tableOfContents);
+
+  // Update article content when sections are read
+  useEffect(() => {
+    setArticleContent(processArticleContent(initialArticleContent.html, readSections));
+  }, [readSections]);
+  const [annotations, setAnnotations] = useState({});
+  const [snippets, setSnippets] = useState([]);
+
   
   // Effect to highlight company names whenever article content changes
   React.useEffect(() => {
@@ -155,6 +171,23 @@ const TradingDashboard = () => {
     y: 0
   });
   const activeCardRef = useRef(null);
+  const closeTimerRef = useRef(null);
+
+  // Function to clear any existing close timer
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  // Function to start close timer
+  const startCloseTimer = () => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      setCompanyModal(prev => ({ ...prev, show: false }));
+    }, 1000);
+  };
 
   // Function to highlight text in the article
   const annotateText = (text, annotation) => {
@@ -338,8 +371,8 @@ const TradingDashboard = () => {
   const [title, setTitle] = useState('OpenAI Market Analysis Report');
   const [chartTitle, setChartTitle] = useState('BTCUSD');
   const [watchlistItems, setWatchlistItems] = useState([
-    { symbol: 'XAUUSD', price: 2321.875, change: -1.62, color: 'red' },
-    { symbol: 'USDJPY', price: 159.76, change: 0.54, color: 'green' },
+    { symbol: 'NVDA', price: 2321.875, change: -1.62, color: 'red' },
+    { symbol: 'ORCL', price: 159.76, change: 0.54, color: 'green' },
   ]);
   // Server and transport initialization
   const server = new McpServer({
@@ -1373,35 +1406,49 @@ const TradingDashboard = () => {
                   }}
                   className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200"
                   onMouseEnter={(e) => {
-                    const sentences = findCompanySentences(articleContent, company.name);
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const viewportHeight = window.innerHeight;
-                    
-                    // Calculate if there's enough space above
-                    const modalHeight = 350; // Approximate height of the modal
-                    const isInTopHalf = rect.top < viewportHeight / 2;
-                    
-                    // If in top half of screen, position below; if in bottom half, position above
-                    const yPosition = isInTopHalf 
-                      ? rect.top + window.scrollY + rect.height + 10 // Below the element
-                      : rect.top + window.scrollY - modalHeight - 10; // Above the element
-                    
-                    setCompanyModal({
-                      show: true,
-                      company: { ...company, sentences },
-                      x: e.currentTarget.offsetLeft,
-                      y: yPosition
-                    });
-                  }}
-                  onMouseLeave={() => {
-                    // Add a small delay to allow moving cursor to modal
-                    setTimeout(() => {
-                      const modalElement = document.querySelector('.modal-hover-zone');
-                      if (!modalElement?.matches(':hover')) {
-                        setCompanyModal(prev => ({ ...prev, show: false }));
+                    const target = e.currentTarget;
+                    clearCloseTimer(); // Clear any pending close timer
+
+                    const timer = setTimeout(() => {
+                      // Only proceed if we're still hovering the same element
+                      if (target.matches(':hover')) {
+                        const sentences = findCompanySentences(articleContent, company.name);
+                        const rect = target.getBoundingClientRect();
+                        const viewportHeight = window.innerHeight;
+                        
+                        // Calculate if there's enough space above
+                        const modalHeight = 350; // Approximate height of the modal
+                        const isInTopHalf = rect.top < viewportHeight / 2;
+                        
+                        // If in top half of screen, position below; if in bottom half, position above
+                        const yPosition = isInTopHalf 
+                          ? rect.top + window.scrollY + rect.height + 10 // Below the element
+                          : rect.top + window.scrollY - modalHeight - 10; // Above the element
+                        
+                        setCompanyModal({
+                          show: true,
+                          company: { ...company, sentences },
+                          x: target.offsetLeft,
+                          y: yPosition
+                        });
                       }
-                    }, 100);
-                  }}>
+                    }, 1000); // 1 second delay
+
+                    // Store the timer ID on the element
+                    target.dataset.hoverTimer = timer;
+                  }}
+                  onMouseLeave={(e) => {
+                    // Clear the hover timer if it exists
+                    const timer = e.currentTarget.dataset.hoverTimer;
+                    if (timer) {
+                      clearTimeout(Number(timer));
+                      delete e.currentTarget.dataset.hoverTimer;
+                    }
+
+                    // Start the close timer - will be cleared if mouse enters modal
+                    startCloseTimer();
+                  }}
+>
                   {/* Header with Name and Rating */}
                   <div className="flex justify-between items-start mb-3">
                     <h4 className="text-white text-base text-sm">{company.name}</h4>
@@ -1502,7 +1549,11 @@ const TradingDashboard = () => {
       
       {/* Company Modal */}
       {companyModal.show && companyModal.company && (
-        <div className="modal-hover-zone">
+        <div 
+          className="modal-hover-zone"
+          onMouseEnter={clearCloseTimer}
+          onMouseLeave={startCloseTimer}
+        >
           <CompanyModal 
             company={companyModal.company}
             x={companyModal.x}
