@@ -621,6 +621,58 @@ const TradingDashboard = () => {
     };
   });
 
+  // State for tracking the currently visible company
+  const [visibleCompany, setVisibleCompany] = useState(null);
+
+  // Function to check for companies in viewport
+  const checkCompaniesInViewport = () => {
+    const articleContainer = document.querySelector('.prose');
+    if (!articleContainer) return;
+
+    // Get the viewport dimensions
+    const viewportHeight = window.innerHeight;
+    const topQuarter = viewportHeight * 0.25;
+
+    // Find all text nodes in the article
+    const walker = document.createTreeWalker(
+      articleContainer,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    let closestCompany = null;
+    let closestDistance = Infinity;
+    let node;
+
+    while (node = walker.nextNode()) {
+      // Check if this text node contains any company names
+      for (const company of companies) {
+        if (node.textContent.toLowerCase().includes(company.name.toLowerCase())) {
+          const rect = node.parentElement.getBoundingClientRect();
+          const centerY = rect.top + (rect.height / 2);
+          
+          // Check if it's in the top quarter of the viewport
+          if (centerY > 0 && centerY <= topQuarter) {
+            const distanceFromIdeal = Math.abs(centerY - (topQuarter / 2));
+            if (distanceFromIdeal < closestDistance) {
+              closestDistance = distanceFromIdeal;
+              closestCompany = company;
+            }
+          }
+        }
+      }
+    }
+
+    setVisibleCompany(closestCompany);
+  };
+
+  // Add scroll event listener for company detection
+  useEffect(() => {
+    window.addEventListener('scroll', checkCompaniesInViewport);
+    return () => window.removeEventListener('scroll', checkCompaniesInViewport);
+  }, []);
+
   // Handle text selection in the article
   const handleTextSelection = async (e) => {
     const selection = window.getSelection();
@@ -998,6 +1050,7 @@ const TradingDashboard = () => {
                   onSave={() => showAlert('This article has been added to your Read Later collection', 'success')}
                   onEmail={() => showAlert('This article has been delivered to your inbox', 'success')}
                   readingTime={articleOverview.readingTime}
+                  activeCompany={visibleCompany}
                 />
                 <div className="article-content">
                   {/* Main Article Content */}

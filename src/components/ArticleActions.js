@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, Clock } from 'lucide-react';
 
-const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail, readingTime = '5' }) => {
+const ArticleActions = ({ 
+  onToggleToc, 
+  onSubscribe, 
+  onSave, 
+  onEmail, 
+  readingTime = '5',
+  activeCompany = null 
+}) => {
   const [isSticky, setIsSticky] = useState(false);
   const [remainingTime, setRemainingTime] = useState(readingTime);
   const actionRef = useRef(null);
@@ -128,8 +135,35 @@ const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail, readingTime
           )}
         </button>
         
+        {/* Center area for company details when sticky */}
+        <div className="flex-1 flex justify-center overflow-hidden">
+          <div 
+            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out
+              ${isSticky && activeCompany 
+                ? 'translate-y-0 opacity-100' 
+                : '-translate-y-full opacity-0'}`}
+          >
+            {activeCompany && (
+              <>
+                <span className="text-xs font-medium">{activeCompany.name}</span>
+                {activeCompany.targetPrice && (
+                  <>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-xs">Target: {activeCompany.targetPrice}</span>
+                  </>
+                )}
+                {activeCompany.analysts && activeCompany.analysts[0] && (
+                  <>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-xs">{activeCompany.analysts[0].name}</span>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Remaining Time Info - Only visible when sticky */}
-        <div className="flex-1" />
         {isSticky && (
           <div className="flex items-center space-x-1.5 text-gray-400 pr-2">
             <Clock className="h-3.5 w-3.5" />
