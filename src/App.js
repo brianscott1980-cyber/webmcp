@@ -18,6 +18,7 @@ import RelatedArticlesPanel from './components/RelatedArticlesPanel';
 import CompanyModal from './components/CompanyModal';
 import ArticlePreviewCard from './components/ArticlePreviewCard';
 import RecommendedArticlesDialog from './components/RecommendedArticlesDialog';
+import CompanyPerformanceChart from './components/CompanyPerformanceChart';
 import useReadSections from './hooks/useReadSections';
 
 const TradingDashboard = () => {
@@ -881,36 +882,10 @@ const TradingDashboard = () => {
                     <div className="flex items-center justify-between mt-2">
 
                       <div>
-                        {company.rating && (
-                          <div className="text-xs text-gray-400">Rating: {company.rating}</div>
-                        )}
-                        {company.targetPrice && (
-                          <div className="text-xs text-gray-400">Target Price: ${company.targetPrice}</div>
-                        )}
-
                       {selectionPopup.detectedCompanies.length === 1 && (
-                        <div className="w-24 h-12 mt-2">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                              data={[
-                                { time: '1', value: Math.random() * 100 },
-                                { time: '2', value: Math.random() * 100 },
-                                { time: '3', value: Math.random() * 100 },
-                                { time: '4', value: Math.random() * 100 },
-                                { time: '5', value: Math.random() * 100 }
-                              ]}
-                            >
-                              <Line
-                                type="monotone"
-                                dataKey="value"
-                                stroke={company.rating === "Overweight" ? "#22c55e" : 
-                                       company.rating === "Underweight" ? "#ef4444" : 
-                                       "#3b82f6"}
-                                strokeWidth={1.5}
-                                dot={false}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
+                        <div className="mt-2">
+                          <div className="text-xs font-semibold text-blue-400 mb-2">Market Performance</div>
+                          <CompanyPerformanceChart company={company} />
                         </div>
                       )}
 
