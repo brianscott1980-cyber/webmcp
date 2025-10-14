@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, Sun, Moon } from 'lucide-react';
 import { TabServerTransport } from '@mcp-b/transports';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
@@ -32,6 +32,9 @@ const TradingDashboard = () => {
 
   // Market news state
   const [activeMarketNews, setActiveMarketNews] = useState(null);
+
+  // Theme state
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Alert state
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
@@ -1053,6 +1056,17 @@ const TradingDashboard = () => {
           </nav>
         </div>
         <div className="flex items-center space-x-4">
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="p-2 rounded-full hover:bg-gray-700 transition-colors duration-200"
+            title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDarkMode ? (
+              <Sun className="h-5 w-5 text-gray-400 hover:text-yellow-400 transition-colors" />
+            ) : (
+              <Moon className="h-5 w-5 text-gray-400 hover:text-blue-400 transition-colors" />
+            )}
+          </button>
           <div className="relative">
             <input type="text" placeholder="Search" className="bg-gray-700 text-white rounded-full py-2 px-4 pl-10 w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
