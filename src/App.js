@@ -1277,6 +1277,9 @@ const TradingDashboard = () => {
                   trackTocClick={(type, name) => {
                     trackGAEvent('toc_open_click', { type, name });
                   }}
+                  trackCompanyMentionClick={name => {
+                    trackGAEvent('company_mention_click', { name });
+                  }}
                   readingTime={articleOverview.readingTime}
                   activeCompany={visibleCompany}
                   activeMarketNews={activeMarketNews}

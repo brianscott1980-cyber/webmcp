@@ -14,7 +14,8 @@ const ArticleActions = ({
   onOpenMarketNews = () => {},
   trackSubscribeClick = () => {},
   trackSaveClick = () => {},
-  trackTocClick = () => {}
+  trackTocClick = () => {},
+  trackCompanyMentionClick = () => {}
 }) => {
   const [isSticky, setIsSticky] = useState(false);
   const [remainingTime, setRemainingTime] = useState(readingTime);
@@ -181,7 +182,10 @@ const ArticleActions = ({
                   </div>
                 )}
                 <div className="flex items-center">
-                  <span className="text-xs font-medium">{activeCompany.name}</span>
+                  <span 
+                    className="text-xs font-medium cursor-pointer underline decoration-dotted"
+                    onClick={() => trackCompanyMentionClick(activeCompany.name)}
+                  >{activeCompany.name}</span>
                   <button 
                     onClick={() => handleSubscribe('company', activeCompany.name)}
                     className="ml-1.5 p-0.5 hover:bg-gray-700 rounded transition-colors"
