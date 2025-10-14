@@ -23,6 +23,26 @@ import useReadSections from './hooks/useReadSections';
 import './theme.css';
 
 const TradingDashboard = () => {
+  // Google Analytics Tracking
+  useEffect(() => {
+    // Only inject once
+    if (!window.gtagScriptInjected) {
+      const scriptTag = document.createElement('script');
+      scriptTag.async = true;
+      scriptTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-H401YQY16V';
+      document.head.appendChild(scriptTag);
+
+      const inlineScript = document.createElement('script');
+      inlineScript.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H401YQY16V');
+      `;
+      document.head.appendChild(inlineScript);
+      window.gtagScriptInjected = true;
+    }
+  }, []);
   // Current user
   const currentUser = {
     id: 1,
@@ -439,6 +459,10 @@ const TradingDashboard = () => {
     version: '1.0.0'
   });
   // Register the tools available on this page.
+  server.tool('toggleDayNightMode', 'Toggle day/night reading mode for comfortable reading and visual impairment', {}, async () => {
+    setIsDarkMode(prev => !prev);
+    return { content: [{ type: 'text', text: `Day/Night mode toggled for comfortable reading.` }] };
+  });
 
   server.tool('updateGraphForTicker', 'Update the graph data and stroke color for a ticker', {
     ticker: z.string()
