@@ -970,24 +970,27 @@ const TradingDashboard = () => {
       <main className="flex-grow p-6 overflow-hidden flex">
         <div className="flex-grow mr-4">
           <h2 className="text-2xl font-semibold mb-6 text-blue-400">{title}</h2>
-          {/* <IndicesPanel indices={indices} /> */}
-          <div className="bg-gray-800 p-4 rounded-lg shadow-lg h-64 sm:h-96">
-            <h3 className="text-lg font-medium text-blue-400 mb-4">{chartTitle}</h3>
-            <ResponsiveContainer width="100%" height="90%">
-              <LineChart data={data}>
-                <XAxis dataKey="time" stroke="#6B7280" />
-                <YAxis domain={['dataMin - 5', 'dataMax + 5']} stroke="#6B7280" />
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} />
-                <Line type="monotone" dataKey="value" stroke={stroke} strokeWidth={2} dot={false} />
-              </LineChart>
-              
-            </ResponsiveContainer>
-          </div>
+         
               {/* New reading area with summary */}
               <div className="mt-8">
                 <ArticleOverview 
                   article={articleOverview}
                 />
+
+              {/* <IndicesPanel indices={indices} /> */}
+              <div className="bg-gray-800 p-4 rounded-lg shadow-lg h-64 sm:h-96">
+                <h3 className="text-lg font-medium text-blue-400 mb-4">{chartTitle}</h3>
+                <ResponsiveContainer width="100%" height="90%">
+                  <LineChart data={data}>
+                    <XAxis dataKey="time" stroke="#6B7280" />
+                    <YAxis domain={['dataMin - 5', 'dataMax + 5']} stroke="#6B7280" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} />
+                    <Line type="monotone" dataKey="value" stroke={stroke} strokeWidth={2} dot={false} />
+                  </LineChart>
+                  
+                </ResponsiveContainer>
+              </div>
+
                 {/* Article action buttons */}
                 <ArticleActions 
                   onToggleToc={() => setIsTocOpen(true)}
@@ -1079,20 +1082,7 @@ const TradingDashboard = () => {
         </div>
         
   <aside className="w-1/4 bg-gray-800 p-4 rounded-lg overflow-y-auto min-w-[250px] flex flex-col" >
-          {/* Watchlist Section */}
-          <WatchlistPanel 
-            watchlistItems={watchlistItems}
-            onItemClick={(item) => {
-              const newChartData = generateTickerData(item.price);
-              setData(newChartData);
-              setChartTitle(item.symbol);
-              
-              const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
-              setStroke(strokeColor);
-              
-              showAlert(`Updated chart to show ${item.symbol}`, 'success');
-            }}
-          />
+          
 
           {/* Annotations Section */}
           <AnnotationsPanel 
@@ -1180,6 +1170,21 @@ const TradingDashboard = () => {
             }}
           />
 
+          {/* Watchlist Section */}
+          <WatchlistPanel 
+            watchlistItems={watchlistItems}
+            onItemClick={(item) => {
+              const newChartData = generateTickerData(item.price);
+              setData(newChartData);
+              setChartTitle(item.symbol);
+              
+              const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
+              setStroke(strokeColor);
+              
+              showAlert(`Updated chart to show ${item.symbol}`, 'success');
+            }}
+          />
+
           {/* Companies Section */}
           <div className="border-t border-gray-700 pt-6">
             <h3 className="text-xl font-semibold mb-4 text-blue-400">Companies</h3>
@@ -1240,55 +1245,7 @@ const TradingDashboard = () => {
                   </div>
 
                   <div className="text-xs text-gray-400 mb-3">{company.type}</div>
-                  
-                  {/* Target Price and Chart */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm">
-                      <span className="text-gray-400">Target: </span>
-                      <span className="text-blue-400">{company.targetPrice || 'Not Rated'}</span>
-                    </div>
-                    <div className="w-24 h-12">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart
-                          data={(() => {
-                            // Use company name as seed for consistent randomization
-                            let seedValue = company.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                            const rand = (min, max) => {
-                              seedValue = (seedValue * 9301 + 49297) % 233280;
-                              const x = seedValue / 233280;
-                              return min + x * (max - min);
-                            };
-                            
-                            // Generate different patterns based on company type
-                            const baseValue = rand(50, 150);
-                            const volatility = company.type.includes('AI') ? 0.15 : 0.08;
-                            const trend = company.rating === "Overweight" ? 0.05 : 
-                                        company.rating === "Underweight" ? -0.05 : 0;
-                            
-                            let value = baseValue;
-                            return [...Array(10)].map((_, i) => {
-                              value *= (1 + (rand(-1, 1) * volatility) + trend);
-                              return {
-                                name: i,
-                                value: value
-                              };
-                            });
-                          })()}
-                        >
-                          <Line
-                            type="monotone"
-                            dataKey="value"
-                            stroke={company.rating === "Overweight" ? "#22c55e" : 
-                                   company.rating === "Underweight" ? "#ef4444" : 
-                                   "#3b82f6"}
-                            strokeWidth={1.5}
-                            dot={false}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
+                 
                   {/* Key Products */}
                   {(company.products || company.keyProducts) && (
                     <div className="mb-3">
