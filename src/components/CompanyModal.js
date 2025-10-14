@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import MarketPerformance from './MarketPerformance';
 
 const CompanyModal = ({ company, onClose, articleContent, showAlert }) => {
 
@@ -155,39 +155,7 @@ const CompanyModal = ({ company, onClose, articleContent, showAlert }) => {
         </div>
 
         {/* Market Performance */}
-        {company.rating && (
-          <div className="border-t border-gray-700 pt-2.5">
-            <h4 className="text-xs font-semibold text-blue-400 mb-2">Market Performance</h4>
-            <div className="p-2 bg-gray-700/50 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <div className="text-xs text-gray-200">Rating: {company.rating}</div>
-                <div className="text-xs text-gray-200">Target: {company.targetPrice}</div>
-              </div>
-              <div className="h-16">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={Array.from({ length: 10 }).map((_, i) => ({
-                      name: i,
-                      value: Math.random() * 100
-                    }))}
-                  >
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke={
-                        company.rating === "Overweight" ? "#22c55e" :
-                        company.rating === "Underweight" ? "#ef4444" :
-                        "#3b82f6"
-                      }
-                      strokeWidth={1.5}
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        )}
+        {company.rating && <MarketPerformance company={company} />}
 
         {/* Subscription Options Section */}
         <div className="border-t border-gray-700 pt-2.5 space-y-2">
