@@ -1,12 +1,12 @@
 const initialArticleContent = {
   html: `
-    <div class="max-w-4xl mx-auto px-4 py-8 bg-gray-900 shadow-lg rounded-lg border border-gray-800">
+  <div class="max-w-4xl mx-auto px-4 py-8 bg-gray-800 shadow-lg rounded-lg border border-gray-800">
       <header class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI Market Analysis Report</h1>
         <h2 class="text-xl text-gray-400">October 7, 2025 - J.P. Morgan Markets Research</h2>
       </header>
       
-      <div id="executive-summary" class="mb-12 bg-gray-800 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
+  <div id="executive-summary" class="mb-12 bg-gray-900 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
         <h3 class="text-2xl font-semibold text-blue-400 mb-4">Executive Summary</h3>
         <p class="text-gray-300 leading-relaxed">
           OpenAI continues to demonstrate strong market leadership with significant strategic developments in infrastructure, product innovation, and market expansion. Key highlights include a $100 billion NVIDIA partnership, expansion of data center capacity, and launch of new consumer-facing products.
@@ -16,7 +16,7 @@ const initialArticleContent = {
       <div id="key-strategic-developments" class="mb-12 transition-colors duration-500">
         <h3 class="text-2xl font-semibold text-gray-100 mb-6">Key Strategic Developments</h3>
         <div class="grid gap-6">
-          <div id="infrastructure-expansion" class="bg-gray-800 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
+          <div id="infrastructure-expansion" class="bg-gray-900 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
             <h4 class="text-lg font-semibold text-blue-400 mb-4">Infrastructure Expansion</h4>
             <ul class="list-disc pl-5 space-y-2 text-gray-300">
               <li>$100bn strategic partnership with NVIDIA for 10GW computing systems deployment</li>
@@ -26,7 +26,7 @@ const initialArticleContent = {
             </ul>
           </div>
           
-          <div id="product-innovation" class="bg-gray-800 p-6 rounded-lg border border-green-900 transition-colors duration-500">
+          <div id="product-innovation" class="bg-gray-900 p-6 rounded-lg border border-green-900 transition-colors duration-500">
             <h4 class="text-lg font-semibold text-green-400 mb-4">Product Innovation</h4>
             <ul class="list-disc pl-5 space-y-2 text-gray-300">
               <li>Launch of "Instant Checkout" in ChatGPT - first agentic shopping offering</li>
@@ -35,7 +35,7 @@ const initialArticleContent = {
             </ul>
           </div>
           
-          <div id="market-competition" class="bg-gray-800 p-6 rounded-lg border border-purple-900 transition-colors duration-500">
+          <div id="market-competition" class="bg-gray-900 p-6 rounded-lg border border-purple-900 transition-colors duration-500">
             <h4 class="text-lg font-semibold text-purple-400 mb-4">Market Competition</h4>
             <ul class="list-disc pl-5 space-y-2 text-gray-300">
               <li>GPT-5 achieved 38.8% win/tie rate vs human experts</li>
@@ -46,7 +46,7 @@ const initialArticleContent = {
         </div>
       </div>
 
-      <div id="financial-projections" class="mb-12 bg-gray-800 p-6 rounded-lg border border-yellow-900 transition-colors duration-500">
+  <div id="financial-projections" class="mb-12 bg-gray-900 p-6 rounded-lg border border-yellow-900 transition-colors duration-500">
         <h3 class="text-2xl font-semibold text-yellow-400 mb-4">Financial Projections</h3>
         <ul class="list-none space-y-3">
           <li class="flex items-center">
@@ -64,7 +64,7 @@ const initialArticleContent = {
         </ul>
       </div>
 
-      <div id="market-position-strategy" class="mb-12 bg-gray-800 p-6 rounded-lg border border-green-900">
+  <div id="market-position-strategy" class="mb-12 bg-gray-900 p-6 rounded-lg border border-green-900">
         <h3 class="text-2xl font-semibold text-green-400 mb-4">Market Position & Strategy</h3>
         <p class="text-gray-300 mb-4">OpenAI maintains a strong position in both consumer and enterprise markets, with:</p>
         <ul class="list-none space-y-3">
@@ -87,7 +87,7 @@ const initialArticleContent = {
         </ul>
       </div>
 
-      <div id="risks-challenges" class="mb-12 bg-gray-800 p-6 rounded-lg border border-red-900">
+  <div id="risks-challenges" class="mb-12 bg-gray-900 p-6 rounded-lg border border-red-900">
         <h3 class="text-2xl font-semibold text-red-400 mb-4">Risks & Challenges</h3>
         <ul class="list-none space-y-3">
           <li class="flex items-center">
@@ -109,7 +109,7 @@ const initialArticleContent = {
         </ul>
       </div>
 
-      <div class="bg-gray-800 p-6 rounded-lg border border-indigo-900">
+  <div class="bg-gray-900 p-6 rounded-lg border border-indigo-900">
         <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Future Outlook</h3>
         <p class="text-gray-300 leading-relaxed">
           OpenAI is well-positioned for continued growth, supported by strong partnerships, innovative product pipeline, and robust infrastructure investments. Key focus areas include expanding enterprise offerings, enhancing consumer products, and maintaining technological leadership in the AI space.

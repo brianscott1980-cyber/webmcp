@@ -20,6 +20,7 @@ import ArticlePreviewCard from './components/ArticlePreviewCard';
 import RecommendedArticlesDialog from './components/RecommendedArticlesDialog';
 import CompanyPerformanceChart from './components/CompanyPerformanceChart';
 import useReadSections from './hooks/useReadSections';
+import './theme.css';
 
 const TradingDashboard = () => {
   // Current user
@@ -35,6 +36,17 @@ const TradingDashboard = () => {
 
   // Theme state
   const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Apply theme changes when isDarkMode changes
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.remove('light-mode');
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+      document.body.classList.add('light-mode');
+    }
+  }, [isDarkMode]);
 
   // Alert state
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
@@ -1047,18 +1059,33 @@ const TradingDashboard = () => {
           </div>
         </div>
       )}
-      <header className="bg-gray-800 p-4 flex items-center justify-between">
+      <header className="p-4 flex items-center justify-between" style={{
+        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+        transition: 'background-color 0.3s ease'
+      }}>
         <div className="flex items-center space-x-6">
           <nav className="hidden md:flex space-x-6">
             {['My Content', 'My Research', 'Economics', 'Market Strategy', 'Rates', 'Equity'].map((item) => (
-              <a key={item} href="#" className="text-gray-300 hover:text-blue-400 transition-colors duration-200">{item}</a>
+              <a 
+                key={item} 
+                href="#" 
+                style={{ 
+                  color: isDarkMode ? '#9ca3af' : '#4b5563',
+                  transition: 'color 0.3s ease'
+                }}
+                className="hover:text-blue-400 transition-colors duration-200"
+              >
+                {item}
+              </a>
             ))}
           </nav>
         </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-2 rounded-full hover:bg-gray-700 transition-colors duration-200"
+            className={`p-2 rounded-full transition-all duration-200 ${
+              isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+            }`}
             title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           >
             {isDarkMode ? (
@@ -1068,8 +1095,23 @@ const TradingDashboard = () => {
             )}
           </button>
           <div className="relative">
-            <input type="text" placeholder="Search" className="bg-gray-700 text-white rounded-full py-2 px-4 pl-10 w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              style={{
+                backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
+                color: isDarkMode ? '#ffffff' : '#111827',
+                transition: 'all 0.3s ease'
+              }}
+              className="rounded-full py-2 px-4 pl-10 w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" 
+            />
+            <Search 
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" 
+              style={{ 
+                color: isDarkMode ? '#9ca3af' : '#4b5563',
+                transition: 'color 0.3s ease'
+              }}
+            />
           </div>
         </div>
       </header>

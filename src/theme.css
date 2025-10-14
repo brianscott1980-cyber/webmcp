@@ -1,0 +1,122 @@
+/* Base styles */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode */
+body.light-mode {
+  background-color: #ffffff;
+  color: #111827;
+}
+
+body.light-mode header {
+  background-color: #f8fafc;
+}
+
+body.light-mode .bg-gray-800 {
+  background-color: #f8fafc;
+}
+
+body.light-mode .bg-gray-900 {
+  background-color: #ffffff;
+}
+
+body.light-mode .text-gray-300 {
+  color: #4b5563;
+}
+
+body.light-mode .text-white {
+  color: #111827;
+}
+
+body.light-mode .bg-gray-700 {
+  background-color: #f3f4f6;
+}
+
+/* Panel backgrounds in light mode */
+body.light-mode .bg-gray-800 {
+  background-color: #f8fafc !important;
+}
+
+body.light-mode .bg-gray-800\/50 {
+  background-color: rgba(248, 250, 252, 0.8) !important;
+}
+
+body.light-mode .bg-gray-700\/50 {
+  background-color: rgba(243, 244, 246, 0.8) !important;
+}
+
+/* Text colors in light mode */
+body.light-mode .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+body.light-mode .text-gray-300 {
+  color: #4b5563 !important;
+}
+
+body.light-mode .text-gray-200 {
+  color: #374151 !important;
+}
+
+/* Border colors in light mode */
+body.light-mode .border-gray-700 {
+  border-color: #e5e7eb !important;
+}
+
+/* Quick Summary Panel in light mode */
+body.light-mode .bg-gray-700\/30 {
+  background-color: rgba(243, 244, 246, 0.3) !important;
+  border-color: #e5e7eb !important;
+}
+
+body.light-mode .bg-gray-900\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .bg-gray-800\/80 {
+  background-color: rgba(248, 250, 252, 0.9) !important;
+}
+
+body.light-mode .bg-gray-900\/80 {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.light-mode .bg-gray-800\/90 {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+}
+
+/* Quick summary text colors */
+body.light-mode .text-gray-100 {
+  color: #111827 !important;
+}
+
+body.light-mode .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+/* Hover states in light mode */
+body.light-mode .hover\:bg-gray-700:hover {
+  background-color: #f3f4f6 !important;
+}
+
+body.light-mode .group:hover .group-hover\:text-blue-400 {
+  color: #2563eb !important;
+}
+
+/* Dark mode - using default Tailwind dark colors */
+body.dark-mode {
+  background-color: #111827;
+  color: #ffffff;
+}
+
+body.dark-mode header {
+  background-color: #1f2937;
+}
+
+/* Ensure smooth transitions */
+.transition-theme {
+  transition: all 0.3s ease;
+}
