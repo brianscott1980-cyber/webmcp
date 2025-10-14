@@ -876,9 +876,21 @@ const TradingDashboard = () => {
               <div className="space-y-2">
                 {selectionPopup.detectedCompanies.map((company, index) => (
                   <div key={index} className="bg-gray-700/50 rounded-lg p-2">
-
-                    <div className="text-sm font-medium text-white">{company.name}</div>
-                    <div className="text-xs text-gray-400">{company.type}</div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-medium text-white">{company.name}</div>
+                        <div className="text-xs text-gray-400">{company.type}</div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          showAlert(`Subscribed to ${company.name} updates`, 'success');
+                        }}
+                        className="px-2 py-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-400/10 hover:bg-blue-400/20 rounded transition-colors"
+                      >
+                        Subscribe
+                      </button>
+                    </div>
                     <div className="flex items-center justify-between mt-2">
 
                       <div>
