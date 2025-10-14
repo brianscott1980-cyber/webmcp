@@ -152,10 +152,10 @@ const ArticleActions = ({
         </button>
         
         {/* Center area for company details or market news when sticky */}
-        <div className="flex-1 flex justify-center overflow-hidden relative">
+        <div className="flex-1 flex justify-center items-center overflow-hidden relative">
           {/* Company Information */}
           <div 
-            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute
+            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute inset-0 justify-center
               ${isSticky && activeCompany
                 ? 'translate-y-0 opacity-100' 
                 : '-translate-y-full opacity-0'}`}
@@ -210,13 +210,13 @@ const ArticleActions = ({
           
           {/* Market Competition News */}
           <div 
-            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute
+            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute inset-0 justify-center
               ${isSticky && activeMarketNews && !activeCompany
                 ? 'translate-y-0 opacity-100' 
                 : '-translate-y-full opacity-0'}`}
           >
             {activeMarketNews && (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 flex-shrink-0">
                 <span className="text-xs text-gray-400">In the news:</span>
                 <span className="text-xs font-medium">{activeMarketNews.title}</span>
                 <button 
