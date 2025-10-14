@@ -64,12 +64,14 @@ const ArticleActions = ({ onToggleToc, onSubscribe, onSave, onEmail, readingTime
 
   return (
     <div>
+      {/* Spacer div that takes up space when the actions bar is sticky */}
+      {isSticky && <div className="h-[88px]" />} {/* 24px (my-6) + 32px (py-4) = 56px + extra for content */}
       <div 
         ref={actionRef}
-        className={`flex space-x-4 mb-6 z-10 bg-gray-900 transition-all duration-200 ${
+        className={`flex space-x-4 z-10 bg-gray-900 transition-all duration-200 ${
           isSticky 
-            ? 'fixed top-0 left-0 right-0 px-6 shadow-lg border-b border-gray-800 py-2' 
-            : 'py-4'
+            ? 'fixed top-0 left-0 right-0 px-6 shadow-lg border-b border-gray-800 py-4' 
+            : 'py-4 my-6'
         }`}
       >
         <button
