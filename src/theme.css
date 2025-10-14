@@ -1,3 +1,6 @@
+body.light-mode .bg-gray-600 {
+  background-color: #e5e7eb !important;
+}
 /* Base styles */
 body {
   transition: background-color 0.3s ease, color 0.3s ease;
