@@ -22,22 +22,30 @@ const AnnotationPrompt = ({ annotationPrompt, onSave, onCancel, currentUser }) =
           onChange={(e) => setDraftText(e.target.value)}
         />
         <div className="flex justify-end space-x-3">
-          <button
-            onClick={() => onCancel()}
-            className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              if (draftText.trim()) {
-                onSave(draftText.trim());
-              }
-            }}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
-          >
-            {annotationPrompt.editingId ? 'Update' : 'Add'} Annotation
-          </button>
+            <button
+              onClick={() => {
+                window.trackGAEvent && window.trackGAEvent('annotation_cancel', {
+                  component: 'AnnotationPrompt'
+                });
+                onCancel();
+              }}
+              className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (draftText.trim()) {
+                  window.trackGAEvent && window.trackGAEvent('annotation_save', {
+                    component: 'AnnotationPrompt',
+                    text: draftText.trim()
+                  });
+                  onSave(draftText.trim());
+                }
+              }}
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
+            >
+              {annotationPrompt.editingId ? 'Update' : 'Add'} Annotation
         </div>
       </div>
     </div>

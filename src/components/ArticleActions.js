@@ -97,13 +97,12 @@ const ArticleActions = ({
             : 'py-4 my-6'
         }`}
       >
-        <button
-          onClick={onToggleToc}
-          className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
+          <button onClick={() => {
+            window.trackGAEvent && window.trackGAEvent('toc_open', { component: 'ArticleActions' });
+            onToggleToc();
+          }} className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
             isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
-          }`}
-          aria-label="Toggle Table of Contents"
-        >
+          }`} aria-label="Toggle Table of Contents">
           <Menu className={`${isSticky ? 'h-4 w-4' : 'h-5 w-5'}`} />
           {!isSticky && (
             <span className="text-sm">Contents</span>
@@ -124,12 +123,12 @@ const ArticleActions = ({
           )}
         </button>
         <button 
-          onClick={onSave}
-          className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
-            isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className={`${isSticky ? 'h-4 w-4' : 'h-5 w-5'}`} viewBox="0 0 20 20" fill="currentColor">
+              <button onClick={() => {
+                window.trackGAEvent && window.trackGAEvent('subscribe_author', { component: 'ArticleActions' });
+                onSubscribe();
+              }} className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
+                isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
+              }`}>
             <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
           </svg>
           {!isSticky && (
@@ -151,12 +150,12 @@ const ArticleActions = ({
           )}
         </button>
         
-        {/* Center area for company details or market news when sticky */}
-        <div className="flex-1 flex justify-center items-center overflow-hidden relative">
-          {/* Company Information */}
-          <div 
-            className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute inset-0 justify-center
-              ${isSticky && activeCompany
+              <button onClick={() => {
+                window.trackGAEvent && window.trackGAEvent('save_article', { component: 'ArticleActions' });
+                onSave();
+              }} className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
+                isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
+              }`}>
                 ? 'translate-y-0 opacity-100' 
                 : '-translate-y-full opacity-0'}`}
           >
@@ -171,12 +170,12 @@ const ArticleActions = ({
                   <span className="text-xs font-medium">{activeCompany.name}</span>
                   <button 
                     onClick={() => handleSubscribe('company', activeCompany.name)}
-                    className="ml-1.5 p-0.5 hover:bg-gray-700 rounded transition-colors"
-                    aria-label={`Subscribe to ${activeCompany.name} updates`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400 hover:text-gray-200" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                      <button onClick={() => {
+                        window.trackGAEvent && window.trackGAEvent('email_article', { component: 'ArticleActions' });
+                        onEmail();
+                      }} className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
+                        isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
+                      }`}>
                     </svg>
                   </button>
                 </div>

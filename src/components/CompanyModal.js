@@ -2,6 +2,11 @@ import React from 'react';
 import MarketPerformance from './MarketPerformance';
 
 const CompanyModal = ({ company, onClose, articleContent, showAlert }) => {
+  React.useEffect(() => {
+    if (window.trackGAEvent) {
+      window.trackGAEvent('component_launch', { component: 'CompanyModal', company: company?.name });
+    }
+  }, [company]);
 
   // Function to generate relevant article titles based on company info
   const generateRelatedArticles = (company) => {
@@ -82,14 +87,17 @@ const CompanyModal = ({ company, onClose, articleContent, showAlert }) => {
           >
             ✕
           </button>
-        </div>
-        
-        {/* Mentions Section */}
-        <div className="space-y-1.5 max-h-[150px] overflow-y-auto">
-          {company.sentences?.map((sentence, index) => (
-            <div
-              key={index}
-              onClick={() => scrollToSentence(sentence)}
+          <button
+            onClick={() => {
+              showAlert(`Now following ${company.name}`, 'success');
+              if (window.trackGAEvent) {
+                window.trackGAEvent('subscribe_action', { company: company.name });
+              }
+            }}
+            className="px-2 py-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-400/10 hover:bg-blue-400/20 rounded transition-colors"
+          >
+            Subscribe
+          </button>
               className="p-2 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors cursor-pointer"
             >
               <div 

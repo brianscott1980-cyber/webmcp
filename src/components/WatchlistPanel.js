@@ -17,7 +17,13 @@ const WatchlistPanel = ({ watchlistItems, onItemClick }) => {
             <li 
               key={item.symbol} 
               className="flex justify-between items-center p-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
-              onClick={() => onItemClick(item)}
+                onClick={() => {
+                  window.trackGAEvent && window.trackGAEvent('watchlist_item_click', {
+                    component: 'WatchlistPanel',
+                    symbol: item.symbol
+                  });
+                  onItemClick(item);
+                }}
             >
               <div>
                 <span className="font-medium">{item.symbol}</span>
