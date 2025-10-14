@@ -1258,7 +1258,6 @@ const TradingDashboard = () => {
                     setIsTocOpen(true);
                   }}
                   onSubscribe={() => {
-                    trackGAEvent('article_options_click', { option: 'subscribe' });
                     showAlert('You have now been subscribed to the author of this article', 'success');
                   }}
                   onSave={() => {
@@ -1268,6 +1267,9 @@ const TradingDashboard = () => {
                   onEmail={() => {
                     trackGAEvent('article_options_click', { option: 'email' });
                     showAlert('This article has been delivered to your inbox', 'success');
+                  }}
+                  trackSubscribeClick={(type, name) => {
+                    trackGAEvent('subscribe_click', { type, name });
                   }}
                   readingTime={articleOverview.readingTime}
                   activeCompany={visibleCompany}

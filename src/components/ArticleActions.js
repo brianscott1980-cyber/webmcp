@@ -11,7 +11,8 @@ const ArticleActions = ({
   activeMarketNews = null,
   onSubscribeCompany = () => {},
   onSubscribeAnalyst = () => {},
-  onOpenMarketNews = () => {}
+  onOpenMarketNews = () => {},
+  trackSubscribeClick = () => {}
 }) => {
   const [isSticky, setIsSticky] = useState(false);
   const [remainingTime, setRemainingTime] = useState(readingTime);
@@ -21,6 +22,7 @@ const ArticleActions = ({
   const articleEndRef = useRef(null);
   
   const handleSubscribe = (type, name) => {
+    trackSubscribeClick(type, name);
     setSubscriptionAlert({ type, name });
     if (type === 'company') {
       onSubscribeCompany(activeCompany);
@@ -110,7 +112,10 @@ const ArticleActions = ({
           )}
         </button>
         <button 
-          onClick={onSubscribe}
+          onClick={e => {
+            trackSubscribeClick('main', 'article');
+            onSubscribe(e);
+          }}
           className={`flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 ${
             isSticky ? 'px-2.5 py-1.5' : 'px-4 py-2'
           }`}
