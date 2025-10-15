@@ -230,7 +230,7 @@ const TradingDashboard = () => {
 
   // Article overview state
   const [articleOverview] = useState({
-    title: "Article Generated Summarisation",
+    title: "Article Summarisation",
     subtitle: "Comprehensive review of OpenAI's market position and future outlook",
     date: "October 10, 2025",
     readingTime: 12,
