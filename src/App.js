@@ -469,6 +469,15 @@ const TradingDashboard = () => {
     setIsDarkMode(prev => !prev);
     return { content: [{ type: 'text', text: `Day/Night mode toggled for comfortable reading.` }] };
   });
+  // Register the tools available on this page.
+  server.tool('setNightMode', 'Set night dark reading mode for comfortable reading and visual impairment', {}, async () => {
+    setIsDarkMode(true);
+    return { content: [{ type: 'text', text: `Night mode toggled for comfortable reading.` }] };
+  });
+    server.tool('setDaytMode', 'Set day light reading mode for comfortable reading and visual impairment', {}, async () => {
+    setIsDarkMode(false);
+    return { content: [{ type: 'text', text: `Day mode toggled for comfortable reading.` }] };
+  });
 
   server.tool('updateGraphForTicker', 'Update the graph data and stroke color for a ticker', {
     ticker: z.string()
@@ -777,8 +786,6 @@ const TradingDashboard = () => {
   }, async ({ term }) => {
       trackGAEvent('server_tool_execution', { tool: 'highlightArticleContent', term });
       trackGAEvent('highlight_term', { term });
-  trackGAEvent('server_tool_execution', { tool: 'toggleDayNightMode' });
-  trackGAEvent('theme_toggle', { mode: isDarkMode ? 'light' : 'dark' });
     highlightTermInArticle(term);
     const message = `Highlighted "${term}" in the article`;
      
