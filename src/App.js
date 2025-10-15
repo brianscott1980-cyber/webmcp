@@ -230,7 +230,7 @@ const TradingDashboard = () => {
 
   // Article overview state
   const [articleOverview] = useState({
-    title: "Article Summarisation",
+    title: "Article Generated Summarisation",
     subtitle: "Comprehensive review of OpenAI's market position and future outlook",
     date: "October 10, 2025",
     readingTime: 12,
@@ -474,7 +474,7 @@ const TradingDashboard = () => {
     setIsDarkMode(true);
     return { content: [{ type: 'text', text: `Night mode toggled for comfortable reading.` }] };
   });
-    server.tool('setDaytMode', 'Set day light reading mode for comfortable reading and visual impairment', {}, async () => {
+    server.tool('setDayMode', 'Set day light reading mode for comfortable reading and visual impairment', {}, async () => {
     setIsDarkMode(false);
     return { content: [{ type: 'text', text: `Day mode toggled for comfortable reading.` }] };
   });
