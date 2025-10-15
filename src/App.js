@@ -1,5 +1,36 @@
+  // Related articles state
+  const [relatedArticles] = useState([
+    {
+      id: 1,
+      title: "NVIDIA's AI Infrastructure Expansion: Impact on Market Dynamics",
+      summary: "Analysis of NVIDIA's strategic infrastructure investments and their implications for AI chip market leadership.",
+      category: "Technology",
+      readingTime: 8,
+      date: "October 12, 2025"
+    },
+    {
+      id: 2,
+      title: "Anthropic's Claude 3: A New Era in Language Models",
+      summary: "Examining Anthropic's latest LLM release and its competitive positioning against GPT-4.",
+      category: "AI Research",
+      readingTime: 10,
+      date: "October 11, 2025"
+    },
+    {
+      id: 3,
+      title: "Meta's AI Strategy: Balancing Open Source and Proprietary Models",
+      summary: "Deep dive into Meta's dual-track approach to AI development and market implications.",
+      category: "Strategy",
+      readingTime: 15,
+      date: "October 9, 2025"
+    }
+  ]);
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { TabServerTransport } from '@mcp-b/transports';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { Sun, Moon } from 'lucide-react';
 import initialArticleContent from './initialArticleContent';
 import companies from './companies';
 import AnnotationsPanel from './components/AnnotationsPanel';
