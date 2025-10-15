@@ -1,16 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Search, Menu, Sun, Moon } from 'lucide-react';
-import { TabServerTransport } from '@mcp-b/transports';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
 import initialArticleContent from './initialArticleContent';
 import companies from './companies';
 import AnnotationsPanel from './components/AnnotationsPanel';
 import AnnotationPrompt from './components/AnnotationPrompt';
 import SnippetsPanel from './components/SnippetsPanel';
 import WatchlistPanel from './components/WatchlistPanel';
-import IndicesPanel from './components/IndicesPanel';
 import ArticleOverview from './components/ArticleOverview';
 import ArticleActions from './components/ArticleActions';
 import ArticleSidePanel from './components/ArticleSidePanel';
@@ -189,32 +184,6 @@ const TradingDashboard = () => {
   const [annotationPrompt, setAnnotationPrompt] = useState({ show: false, text: '', range: null });
 
   // Related articles state
-  const [relatedArticles] = useState([
-    {
-      id: 1,
-      title: "NVIDIA's AI Infrastructure Expansion: Impact on Market Dynamics",
-      summary: "Analysis of NVIDIA's strategic infrastructure investments and their implications for AI chip market leadership.",
-      category: "Technology",
-      readingTime: 8,
-      date: "October 12, 2025"
-    },
-    {
-      id: 2,
-      title: "Anthropic's Claude 3: A New Era in Language Models",
-      summary: "Examining Anthropic's latest LLM release and its competitive positioning against GPT-4.",
-      category: "AI Research",
-      readingTime: 10,
-      date: "October 11, 2025"
-    },
-    {
-      id: 3,
-      title: "Meta's AI Strategy: Balancing Open Source and Proprietary Models",
-      summary: "Deep dive into Meta's dual-track approach to AI development and market implications.",
-      category: "Strategy",
-      readingTime: 15,
-      date: "October 9, 2025"
-    }
-  ]);
 
   const handleArticleClick = (article) => {
     if (article === 'viewOpenAI') {
@@ -447,12 +416,12 @@ const TradingDashboard = () => {
     { time: '23:00', value: 5468 },
   ]);
 
-  const indices = [
-    { name: 'S&P 500', value: 5464.61, change: -0.16, color: 'red', flag: '🇺🇸' },
-    { name: 'Nasdaq 100', value: 19700.43, change: -0.26, color: 'red', flag: '🇺🇸' },
-    { name: 'Dow 30', value: 39150.34, change: 0.04, color: 'green', flag: '🇺🇸' },
-    { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
-  ];
+  // const indices = [
+  //   { name: 'S&P 500', value: 5464.61, change: -0.16, color: 'red', flag: '🇺🇸' },
+  //   { name: 'Nasdaq 100', value: 19700.43, change: -0.26, color: 'red', flag: '🇺🇸' },
+  //   { name: 'Dow 30', value: 39150.34, change: 0.04, color: 'green', flag: '🇺🇸' },
+  //   { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
+  // ];
   const [title, setTitle] = useState('OpenAI Market Analysis Report');
   const [watchlistItems, setWatchlistItems] = useState([
     { symbol: 'NVDA', price: 2321.875, change: -1.62, color: 'red' },
