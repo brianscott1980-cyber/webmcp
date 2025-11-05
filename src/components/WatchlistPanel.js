@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 
 const WatchlistPanel = ({ watchlistItems, onItemClick }) => {
   return (
-    <div className="mb-6 border-t border-gray-700 mt-6 pt-6">
+    <div className="">
       <h3 className="text-xl font-semibold mb-4 text-blue-400">Article Watchlist</h3>
       {watchlistItems.length === 0 ? (
         <div className="p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">

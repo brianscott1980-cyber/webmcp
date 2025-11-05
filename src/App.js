@@ -19,6 +19,7 @@ import ArticlePreviewCard from './components/ArticlePreviewCard';
 import RecommendedArticlesDialog from './components/RecommendedArticlesDialog';
 import CompanyPerformanceChart from './components/CompanyPerformanceChart';
 import useReadSections from './hooks/useReadSections';
+import MarketsGraph from "./components/MarketsGraph";
 import './theme.css';
 
 const TradingDashboard = () => {
@@ -466,15 +467,26 @@ const TradingDashboard = () => {
   });
   // Register the tools available on this page.
   server.tool('toggleDayNightMode', 'Toggle day/night reading mode for comfortable reading and visual impairment', {}, async () => {
+    // Instantly update body class for immediate feedback
+    if (isDarkMode) {
+      document.body.classList.remove('dark-mode');
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+      document.body.classList.add('dark-mode');
+    }
     setIsDarkMode(prev => !prev);
     return { content: [{ type: 'text', text: `Day/Night mode toggled for comfortable reading.` }] };
   });
-  // Register the tools available on this page.
   server.tool('setNightMode', 'Set night dark reading mode for comfortable reading and visual impairment', {}, async () => {
+    document.body.classList.remove('light-mode');
+    document.body.classList.add('dark-mode');
     setIsDarkMode(true);
     return { content: [{ type: 'text', text: `Night mode toggled for comfortable reading.` }] };
   });
-    server.tool('setDayMode', 'Set day light reading mode for comfortable reading and visual impairment', {}, async () => {
+  server.tool('setDayMode', 'Set day light reading mode for comfortable reading and visual impairment', {}, async () => {
+    document.body.classList.remove('dark-mode');
+    document.body.classList.add('light-mode');
     setIsDarkMode(false);
     return { content: [{ type: 'text', text: `Day mode toggled for comfortable reading.` }] };
   });
@@ -1245,18 +1257,6 @@ const TradingDashboard = () => {
                 />
 
               {/* <IndicesPanel indices={indices} /> */}
-              <div className="bg-gray-800 p-4 rounded-lg shadow-lg h-64 sm:h-96">
-                <h3 className="text-lg font-medium text-blue-400 mb-4">{chartTitle}</h3>
-                <ResponsiveContainer width="100%" height="90%">
-                  <LineChart data={data}>
-                    <XAxis dataKey="time" stroke="#6B7280" />
-                    <YAxis domain={['dataMin - 5', 'dataMax + 5']} stroke="#6B7280" />
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} />
-                    <Line type="monotone" dataKey="value" stroke={stroke} strokeWidth={2} dot={false} />
-                  </LineChart>
-                  
-                </ResponsiveContainer>
-              </div>
 
                 {/* Article action buttons */}
                 <ArticleActions 
@@ -1359,6 +1359,22 @@ const TradingDashboard = () => {
                     articles={relatedArticles}
                     onArticleClick={handleArticleClick}
                     currentUser={currentUser}
+                  />
+
+                  {/* Graph and Watchlist Panel moved below article content */}
+                  <MarketsGraph
+                    chartTitle={chartTitle}
+                    data={data}
+                    stroke={stroke}
+                    watchlistItems={watchlistItems}
+                    onWatchlistItemClick={(item) => {
+                      const newChartData = generateTickerData(item.price);
+                      setData(newChartData);
+                      setChartTitle(item.symbol);
+                      const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
+                      setStroke(strokeColor);
+                      showAlert(`Updated chart to show ${item.symbol}`, 'success');
+                    }}
                   />
                 </div>
                 
@@ -1469,20 +1485,7 @@ const TradingDashboard = () => {
             }}
           />
 
-          {/* Watchlist Section */}
-          <WatchlistPanel 
-            watchlistItems={watchlistItems}
-            onItemClick={(item) => {
-              const newChartData = generateTickerData(item.price);
-              setData(newChartData);
-              setChartTitle(item.symbol);
-              
-              const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
-              setStroke(strokeColor);
-              
-              showAlert(`Updated chart to show ${item.symbol}`, 'success');
-            }}
-          />
+          {/* WatchlistPanel moved to graph panel above */}
 
           {/* Companies Section */}
           <div className="border-t border-gray-700 pt-6">
