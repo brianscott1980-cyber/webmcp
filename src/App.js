@@ -5,6 +5,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { Sun, Moon, Search } from 'lucide-react';
 import initialArticleContent from './initialArticleContent';
+import realisticArticleContent from './realisticArticleContent';
 import companies from './companies';
 import AnnotationsPanel from './components/AnnotationsPanel';
 import AnnotationPrompt from './components/AnnotationPrompt';
@@ -23,6 +24,20 @@ import MarketsGraph from "./components/MarketsGraph";
 import './theme.css';
 
 const TradingDashboard = () => {
+ 
+
+  // Helper to scroll to annotation from sidebar
+  function scrollToAnnotationSidebar(id) {
+    const element = document.querySelector(`[data-annotation-id="${id}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('bg-blue-500/20');
+      setTimeout(() => {
+        element.classList.remove('bg-blue-500/20');
+      }, 2000);
+    }
+  }
+
   // Google Analytics event utility
   const trackGAEvent = (event, params = {}) => {
     if (typeof window.gtag === 'function') {
@@ -180,11 +195,9 @@ const TradingDashboard = () => {
     // Table of Contents state
   const [tableOfContents, setTableOfContents] = useState([
     { id: 'executive-summary', title: 'Executive Summary', level: 1 },
-    { id: 'key-strategic-developments', title: 'Key Strategic Developments', level: 1, children: [
-      { id: 'infrastructure-expansion', title: 'Infrastructure Expansion', level: 2 },
-      { id: 'product-innovation', title: 'Product Innovation', level: 2 },
-      { id: 'market-competition', title: 'Market Competition', level: 2 }
-    ]},
+    { id: 'infrastructure-expansion', title: 'Infrastructure Expansion', level: 1 },
+    { id: 'product-innovation', title: 'Product Innovation', level: 1 },
+    { id: 'market-competition', title: 'Market Competition', level: 1 },
     { id: 'financial-projections', title: 'Financial Projections', level: 1 },
     { id: 'market-position-strategy', title: 'Market Position & Strategy', level: 1 },
     { id: 'risks-challenges', title: 'Risks & Challenges', level: 1 }
@@ -193,8 +206,11 @@ const TradingDashboard = () => {
   
   const [isTocOpen, setIsTocOpen] = useState(false);
 
+
+  // Toggle for article type
+  const [articleType, setArticleType] = useState('original'); // 'summarised' or 'original'
   const [articleContent, setArticleContent] = useState(() => {
-    return processArticleContent(initialArticleContent.html, {});
+    return processArticleContent(realisticArticleContent.html, {});
   });
 
 
@@ -203,8 +219,9 @@ const TradingDashboard = () => {
 
   // Update article content when sections are read
   useEffect(() => {
-    setArticleContent(processArticleContent(initialArticleContent.html, readSections));
-  }, [readSections]);
+    const contentSource = articleType === 'summarised' ? initialArticleContent.html : realisticArticleContent.html;
+    setArticleContent(processArticleContent(contentSource, readSections));
+  }, [readSections, articleType]);
   const [annotations, setAnnotations] = useState({});
   const [snippets, setSnippets] = useState([]);
 
@@ -231,7 +248,7 @@ const TradingDashboard = () => {
 
   // Article overview state
   const [articleOverview] = useState({
-    title: "Article Summarisation",
+    title: "Key Details",
     subtitle: "Comprehensive review of OpenAI's market position and future outlook",
     date: "October 10, 2025",
     readingTime: 12,
@@ -241,8 +258,7 @@ const TradingDashboard = () => {
       { label: "Market Share", value: "38.8%", trend: "up" },
       { label: "Revenue Target", value: "$200B", trend: "up" },
       { label: "Partnership Value", value: "$100M", trend: "neutral" }
-    ],
-    summary: "Analysis of OpenAI's competitive position, highlighting significant market share gains, ambitious revenue targets, and strategic partnerships shaping the company's trajectory in the AI industry."
+    ]
   });
   const [selectionPopup, setSelectionPopup] = useState({
     show: false,
@@ -300,7 +316,7 @@ const TradingDashboard = () => {
           
           // Create the annotated span around the original text node
           const span = document.createElement('span');
-          span.className = 'relative group cursor-pointer border-b border-dotted border-blue-400';
+          span.className = 'relative group cursor-pointer bg-blue-500/20 rounded-md px-1 transition-all duration-200 ring-2 ring-blue-400/40 hover:bg-blue-500/30';
           span.setAttribute('data-annotation-id', annotationId);
           span.setAttribute('role', 'button');
           span.setAttribute('tabindex', '0');
@@ -317,7 +333,13 @@ const TradingDashboard = () => {
               editingId: annotationId
             });
           };
-          // Move the original text node into the span
+          // Add author avatar icon absolutely to the left
+          const avatar = document.createElement('img');
+          avatar.src = `https://ui-avatars.com/api/?name=Brian+Scott&background=0D8ABC&color=fff&size=20`;
+          avatar.alt = 'Brian Scott';
+          avatar.className = 'absolute -left-8 top-0 w-5 h-5 rounded-full border-2 border-blue-400 shadow pointer-events-none';
+          span.appendChild(avatar);
+          // No padding on the span, let avatar overlay
           const textNode = document.createTextNode(text);
           span.appendChild(textNode);
           node.parentNode.insertBefore(span, node);
@@ -329,13 +351,14 @@ const TradingDashboard = () => {
           // Remove the original text node
           node.parentNode.removeChild(node);
           
-          // Store the annotation with metadata
+          // Store the annotation with metadata, including viewType
           setAnnotations(prev => ({
             ...prev,
             [annotationId]: {
               text: annotation,
               user: currentUser,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
+              viewType: articleType
             }
           }));
         }
@@ -459,7 +482,16 @@ const TradingDashboard = () => {
     { symbol: 'NVDA', price: 2321.875, change: -1.62, color: 'red' },
     { symbol: 'ORCL', price: 159.76, change: 0.54, color: 'green' },
   ]);
-  const [chartTitle, setChartTitle] = useState(watchlistItems[0].symbol);
+  const [chartTitle, setChartTitle] = useState(watchlistItems.length > 0 ? watchlistItems[0].symbol : '');
+
+  // Keep chartTitle in sync with watchlistItems
+  useEffect(() => {
+    if (watchlistItems.length === 0) {
+      setChartTitle('');
+    } else if (!watchlistItems.find(item => item.symbol === chartTitle)) {
+      setChartTitle(watchlistItems[0].symbol);
+    }
+  }, [watchlistItems]);
   // Server and transport initialization
   const server = new McpServer({
     name: 'trading-server',
@@ -530,6 +562,109 @@ const TradingDashboard = () => {
     }
     return hourlyData;
   };
+
+// Tool to scroll up or down a full page
+  server.tool('scrollPage', 'Scroll the page up or down by one viewport height', {
+    direction: z.enum(['up', 'down'])
+  }, async ({ direction }) => {
+    const scrollAmount = window.innerHeight;
+    if (direction === 'down') {
+      window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+    } else {
+      window.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+    }
+    return { content: [{ type: 'text', text: `Scrolled ${direction} by one page.` }] };
+  });
+  // Tool for auto-scroll with adjustable speed
+  server.tool('autoScroll', 'Automatically scroll the page up or down at a specified speed (slow, normal, fast)', {
+    direction: z.enum(['up', 'down']),
+    speed: z.enum(['slow', 'normal', 'fast'])
+  }, async ({ direction, speed }) => {
+    // Speed mapping in pixels per interval
+    const speedMap = {
+      slow: 2,
+      normal: 6,
+      fast: 16
+    };
+    const scrollStep = speedMap[speed] || 6;
+    const intervalMs = 16; // ~60fps
+    let stopped = false;
+    // Stop any previous auto-scroll
+    if (window.__autoScrollInterval) {
+      clearInterval(window.__autoScrollInterval);
+      window.__autoScrollInterval = null;
+    }
+    // Start auto-scroll
+    window.__autoScrollInterval = setInterval(() => {
+      if (stopped) return;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const currentScroll = window.scrollY;
+      let nextScroll;
+      if (direction === 'down') {
+        nextScroll = Math.min(currentScroll + scrollStep, maxScroll);
+        window.scrollTo({ top: nextScroll, behavior: 'auto' });
+        if (nextScroll >= maxScroll) {
+          stopped = true;
+          clearInterval(window.__autoScrollInterval);
+          window.__autoScrollInterval = null;
+        }
+      } else {
+        nextScroll = Math.max(currentScroll - scrollStep, 0);
+        window.scrollTo({ top: nextScroll, behavior: 'auto' });
+        if (nextScroll <= 0) {
+          stopped = true;
+          clearInterval(window.__autoScrollInterval);
+          window.__autoScrollInterval = null;
+        }
+      }
+    }, intervalMs);
+    // Provide a way to stop auto-scroll externally
+    window.__stopAutoScroll = () => {
+      stopped = true;
+      if (window.__autoScrollInterval) {
+        clearInterval(window.__autoScrollInterval);
+        window.__autoScrollInterval = null;
+      }
+    };
+    return { content: [{ type: 'text', text: `Auto-scroll started (${direction}, ${speed}). Call window.__stopAutoScroll() to stop.` }] };
+  });
+
+   // Tool to stop auto-scroll
+  server.tool('stopAutoScroll', 'Stop any ongoing auto-scroll on the page', {}, async () => {
+    if (typeof window.__stopAutoScroll === 'function') {
+      window.__stopAutoScroll();
+      return { content: [{ type: 'text', text: 'Auto-scroll stopped.' }] };
+    } else {
+      return { content: [{ type: 'text', text: 'No auto-scroll in progress.' }] };
+    }
+  });
+  // Helper to highlight snippet from sidebar
+  function highlightSnippetSidebar(snippet) {
+    const content = document.querySelector('.prose');
+    if (content) {
+      const textNodes = [];
+      const walk = document.createTreeWalker(
+        content,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      );
+      let node;
+      while (node = walk.nextNode()) {
+        textNodes.push(node);
+      }
+      for (let node of textNodes) {
+        if (node.textContent.includes(snippet.text)) {
+          node.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          node.parentElement.classList.add('bg-blue-500/20');
+          setTimeout(() => {
+            node.parentElement.classList.remove('bg-blue-500/20');
+          }, 2000);
+          break;
+        }
+      }
+    }
+  }
 
   server.tool('addToWatchlist', 'Add a new stock ticker to the watchlist', {
     ticker: z.string()
@@ -980,22 +1115,24 @@ const TradingDashboard = () => {
                       )}
 
                         {/* Related Research Section */}
-                        <div className="mt-2">
-                          <div className="text-xs text-blue-400 font-medium uppercase tracking-wide mb-1">Related Research</div>
-                          <div className="space-y-2">
-                            <ArticlePreviewCard 
-                              article={{
-                                title: `${company.name} Q3 2025 Market Analysis: Growth Prospects and Strategic Initiatives`,
-                                date: 'Oct 12, 2025',
-                                authors: ['Sarah Anderson'],
-                                type: 'Research Report'
-                              }}
-                              onClick={() => {
-                                showAlert('Opening research report...', 'success');
-                              }}
-                            />
+                        {selectionPopup.detectedCompanies.length <= 2 && (
+                          <div className="mt-2">
+                            <div className="text-xs text-blue-400 font-medium uppercase tracking-wide mb-1">Related Research</div>
+                            <div className="space-y-2">
+                              <ArticlePreviewCard 
+                                article={{
+                                  title: `${company.name} Q3 2025 Market Analysis: Growth Prospects and Strategic Initiatives`,
+                                  date: 'Oct 12, 2025',
+                                  authors: ['Sarah Anderson'],
+                                  type: 'Research Report'
+                                }}
+                                onClick={() => {
+                                  showAlert('Opening research report...', 'success');
+                                }}
+                              />
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1023,7 +1160,8 @@ const TradingDashboard = () => {
                   text: text,
                   summary: selectionPopup.summary,
                   timestamp: new Date().toISOString(),
-                  user: currentUser
+                  user: currentUser,
+                  viewType: articleType
                 };
                 setSnippets(prev => [newSnippet, ...prev]);
                 showAlert('Snippet saved successfully', 'success');
@@ -1191,59 +1329,56 @@ const TradingDashboard = () => {
         annotations={annotations}
         currentUser={currentUser}
         onItemClick={(id) => {
-          const element = document.getElementById(id);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            // Highlight the section briefly
-            element.classList.add('bg-blue-500/20');
+          // Always switch to summarised view before scrolling
+          if (articleType !== 'summarised') {
+            setArticleType('summarised');
+            // Wait for the view to update, then scroll
             setTimeout(() => {
-              element.classList.remove('bg-blue-500/20');
-            }, 2000);
+              const element = document.getElementById(id);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                element.classList.add('bg-blue-500/20');
+                setTimeout(() => {
+                  element.classList.remove('bg-blue-500/20');
+                }, 2000);
+              }
+            }, 300);
+          } else {
+            const element = document.getElementById(id);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              element.classList.add('bg-blue-500/20');
+              setTimeout(() => {
+                element.classList.remove('bg-blue-500/20');
+              }, 2000);
+            }
           }
           setIsTocOpen(false);
         }}
         onSnippetClick={(snippet) => {
-          // Find and scroll to the snippet text
-          const content = document.querySelector('.prose');
-          if (content) {
-            const textNodes = [];
-            const walk = document.createTreeWalker(
-              content,
-              NodeFilter.SHOW_TEXT,
-              null,
-              false
-            );
-            let node;
-            while (node = walk.nextNode()) {
-              textNodes.push(node);
-            }
-            
-            for (let node of textNodes) {
-              if (node.textContent.includes(snippet.text)) {
-                node.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Highlight the containing element briefly
-                node.parentElement.classList.add('bg-blue-500/20');
-                setTimeout(() => {
-                  node.parentElement.classList.remove('bg-blue-500/20');
-                }, 2000);
-                break;
-              }
-            }
+          if (snippet.viewType && snippet.viewType !== articleType) {
+            setArticleType(snippet.viewType);
+            setTimeout(() => {
+              highlightSnippetSidebar(snippet);
+            }, 300);
+          } else {
+            highlightSnippetSidebar(snippet);
           }
           setIsTocOpen(false);
         }}
         onAnnotationClick={(id) => {
-          const element = document.querySelector(`[data-annotation-id="${id}"]`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Highlight the annotation briefly
-            element.classList.add('bg-blue-500/20');
+          const annotation = annotations[id];
+          if (annotation && annotation.viewType && annotation.viewType !== articleType) {
+            setArticleType(annotation.viewType);
             setTimeout(() => {
-              element.classList.remove('bg-blue-500/20');
-            }, 2000);
+              scrollToAnnotationSidebar(id);
+            }, 300);
+          } else {
+            scrollToAnnotationSidebar(id);
           }
           setIsTocOpen(false);
         }}
+        // Helper to scroll to annotation from sidebar
       />
       
       <main className="flex-grow p-6 overflow-hidden flex">
@@ -1252,9 +1387,11 @@ const TradingDashboard = () => {
          
               {/* New reading area with summary */}
               <div className="mt-8">
-                <ArticleOverview 
-                  article={articleOverview}
-                />
+                {articleType !== 'summarised' && (
+                  <ArticleOverview 
+                    article={articleOverview}
+                  />
+                )}
 
               {/* <IndicesPanel indices={indices} /> */}
 
@@ -1297,6 +1434,28 @@ const TradingDashboard = () => {
                     }
                   }}
                 />
+                {/* Article Type Toggle */}
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-xs text-gray-400 font-semibold">View:</span>
+                  <button
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${articleType === 'original' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-blue-600 hover:text-white'}`}
+                    onClick={() => setArticleType('original')}
+                  >
+                    Original
+                  </button>
+                  <button
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                      articleType === 'summarised'
+                        ? 'bg-blue-600 text-white'
+                        : isDarkMode
+                          ? 'bg-gray-700 text-gray-300 hover:bg-blue-600 hover:text-white'
+                          : 'bg-gray-200 text-gray-800 hover:bg-blue-600 hover:text-white'
+                    }`}
+                    onClick={() => setArticleType('summarised')}
+                  >
+                    Summarised
+                  </button>
+                </div>
                 <div className="article-content">
                   {/* Main Article Content */}
                   <div 
@@ -1329,17 +1488,31 @@ const TradingDashboard = () => {
                       label.className = 'text-blue-400 text-xs font-medium uppercase tracking-wide';
                       label.textContent = 'Note';
                       content.appendChild(label);
-                      
+
                       // Add the annotation text
                       const text = document.createElement('div');
                       text.className = 'text-white/90 font-medium leading-relaxed';
                       text.textContent = annotations[annotationId].text;
                       content.appendChild(text);
-                      
+
+                      // Add author and date/time details
+                      const meta = document.createElement('div');
+                      meta.className = 'text-xs text-gray-400 mt-1 flex gap-2 items-center';
+                      // Use annotation user if available, else fallback
+                      const author = (annotations[annotationId].user && annotations[annotationId].user.name) ? annotations[annotationId].user.name : 'Brian Scott';
+                      // Format date/time
+                      let dateStr = '';
+                      if (annotations[annotationId].timestamp) {
+                        const d = new Date(annotations[annotationId].timestamp);
+                        dateStr = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                      }
+                      meta.innerHTML = `<span>By <span class="font-semibold text-blue-300">${author}</span></span>${dateStr ? `<span>•</span><span>${dateStr}</span>` : ''}`;
+                      content.appendChild(meta);
+
                       // Add a decorative pointer that follows the cursor
                       const pointer = document.createElement('div');
                       pointer.className = 'absolute bottom-0 left-1/2 w-4 h-4 bg-gray-800/95 border-b-2 border-r-2 border-blue-500 transform rotate-45 translate-y-2 -translate-x-1/2 -z-10';
-                      
+
                       tooltip.appendChild(content);
                       tooltip.appendChild(pointer);
                       tooltip.id = 'annotation-tooltip';
@@ -1500,41 +1673,24 @@ const TradingDashboard = () => {
                       activeCardRef.current = el;
                     }
                   }}
-                  className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200"
-                  onMouseEnter={(e) => {
-                    const target = e.currentTarget;
-                    clearCloseTimer(); // Clear any pending close timer
-
-                    const timer = setTimeout(() => {
-                      // Only proceed if we're still hovering the same element
-                      if (target.matches(':hover')) {
-                        const sentences = findCompanySentences(articleContent, company.name);
-                        
-                        setCompanyModal({
-                          show: true,
-                          company: { ...company, sentences }
-                        });
-                      }
-                    }, 1000); // 1 second delay
-
-                    // Store the timer ID on the element
-                    target.dataset.hoverTimer = timer;
-                  }}
-                  onMouseLeave={(e) => {
-                    // Clear the hover timer if it exists
-                    const timer = e.currentTarget.dataset.hoverTimer;
-                    if (timer) {
-                      clearTimeout(Number(timer));
-                      delete e.currentTarget.dataset.hoverTimer;
-                    }
-
-                    // Start the close timer - will be cleared if mouse enters modal
-                    startCloseTimer();
+                  className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200 cursor-pointer group"
+                  onClick={() => {
+                    const sentences = findCompanySentences(articleContent, company.name);
+                    setCompanyModal({
+                      show: true,
+                      company: { ...company, sentences }
+                    });
                   }}
 >
-                  {/* Header with Name and Rating */}
+                  {/* Header with Name, Click Icon, and Rating */}
                   <div className="flex justify-between items-start mb-3">
-                    <h4 className="text-white text-base text-sm">{company.name}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-white text-base text-sm">{company.name}</h4>
+                      {/* Click indicator icon */}
+                      <span className="ml-1 text-blue-400 opacity-70 group-hover:opacity-100 transition-opacity" title="Click to view company profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 12v-2a4 4 0 1 1 8 0v2m-8 0h8m-8 0v2a4 4 0 0 0 8 0v-2"/><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 16v2m0 0h.01"/></svg>
+                      </span>
+                    </div>
                     {company.rating !== "Not Rated" && (
                       <span className={`text-xs px-2 py-1 rounded ${
                         company.rating === "Overweight" ? 'bg-green-900 text-green-300' : 

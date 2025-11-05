@@ -5,13 +5,6 @@ const initialArticleContent = {
         <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI Market Analysis Report</h1>
   <h2 class="text-xl text-gray-400">October 7, 2025 - Atlas Bank Markets Research</h2>
       </header>
-      
-  <div id="executive-summary" class="mb-12 bg-gray-900 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
-        <h3 class="text-2xl font-semibold text-blue-400 mb-4">Executive Summary</h3>
-        <p class="text-gray-300 leading-relaxed">
-          OpenAI continues to demonstrate strong market leadership with significant strategic developments in infrastructure, product innovation, and market expansion. Key highlights include a $100 billion NVIDIA partnership, expansion of data center capacity, and launch of new consumer-facing products.
-        </p>
-      </div>
 
       <div id="key-strategic-developments" class="mb-12 transition-colors duration-500">
         <h3 class="text-2xl font-semibold text-gray-100 mb-6">Key Strategic Developments</h3>
