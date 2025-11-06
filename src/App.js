@@ -1,3 +1,4 @@
+import InTheNewsPanel from './components/InTheNewsPanel';
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TabServerTransport } from '@mcp-b/transports';
@@ -1681,7 +1682,7 @@ const TradingDashboard = () => {
                       company: { ...company, sentences }
                     });
                   }}
->
+                >
                   {/* Header with Name, Click Icon, and Rating */}
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
@@ -1734,6 +1735,8 @@ const TradingDashboard = () => {
                 </div>
               ))}
             </div>
+            {/* In the News Panel */}
+            <InTheNewsPanel />
           </div>
         </aside>
       </main>
