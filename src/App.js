@@ -964,6 +964,7 @@ const TradingDashboard = () => {
           type: company.type,
           rating: company.rating,
           targetPrice: company.targetPrice,
+          isPrivate: company.isPrivate,
           sentences: sentences
         });
       }
@@ -1152,7 +1153,7 @@ const TradingDashboard = () => {
                     <div className="flex items-center justify-between mt-2">
 
                       <div>
-                      {selectionPopup.detectedCompanies.length === 1 && (
+                      {selectionPopup.detectedCompanies.length === 1 && !selectionPopup.detectedCompanies[0].isPrivate && (
                         <div className="mt-2">
                           <div className="text-xs font-semibold text-blue-400 mb-2">Market Performance</div>
                           <CompanyPerformanceChart company={company} />
