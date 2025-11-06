@@ -1720,7 +1720,7 @@ const TradingDashboard = () => {
           {/* WatchlistPanel moved to graph panel above */}
 
           {/* Companies Section */}
-          <div className="border-t border-gray-700 pt-6">
+          <div className="border-t border-gray-700 pt-6 border-t border-gray-700 mt-6">
             <h3 className="text-xl font-semibold mb-4 text-blue-400">Companies</h3>
             <div className="space-y-3">
               {companies.map((company) => (

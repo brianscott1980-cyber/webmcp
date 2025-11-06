@@ -3,7 +3,7 @@ import React from 'react';
 const AnnotationsPanel = ({ annotations, currentUser, onAnnotationClick, onAnnotationEdit }) => {
   return (
     <div className="">
-      <h3 className="text-xl font-semibold mb-4 text-blue-400">Annotations</h3>
+  <h3 className="text-xl font-semibold mb-4 text-blue-400">My Annotations</h3>
       <div className="space-y-2">
         {Object.entries(annotations).length === 0 ? (
           <div className="p-3 bg-gray-700 rounded-lg">

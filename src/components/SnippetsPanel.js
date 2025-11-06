@@ -3,7 +3,7 @@ import React from 'react';
 const SnippetsPanel = ({ snippets, currentUser, onSnippetClick }) => {
   return (
     <div className="border-t border-gray-700 pt-6">
-      <h3 className="text-xl font-semibold mb-4 text-blue-400">Snippets</h3>
+  <h3 className="text-xl font-semibold mb-4 text-blue-400">My Snippets</h3>
       <div className="space-y-2">
         {snippets.length === 0 ? (
           <div className="p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
