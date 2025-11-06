@@ -463,7 +463,6 @@ const TradingDashboard = () => {
     'bg-cyan-600'
   ];
   
-  const [stroke, setStroke] = useState('#3B82F6');
   const [data, setData] = useState([
     { time: '19:00', value: 5458 },
     { time: '20:00', value: 5462 },
@@ -479,10 +478,29 @@ const TradingDashboard = () => {
   //   { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
   // ];
   const [title, setTitle] = useState('OpenAI Market Analysis Report');
-  const [watchlistItems, setWatchlistItems] = useState([
-    { symbol: 'NVDA', price: 2321.875, change: -1.62, color: 'red' },
-    { symbol: 'ORCL', price: 159.76, change: 0.54, color: 'green' },
-  ]);
+  // Set initial watchlist to 3 non-private companies with their target prices
+  const nonPrivateCompanies = companies.filter(c => !c.isPrivate).slice(0, 3);
+  const initialWatchlist = nonPrivateCompanies.map(company => ({
+    symbol: company.name.toUpperCase(),
+    price: parseFloat((company.targetPrice || '').replace(/[^\d.]/g, '')) || 0,
+    change: 0,
+    color: 'blue'
+  }));
+  const [watchlistItems, setWatchlistItems] = useState(initialWatchlist);
+  // Set initial stroke color based on first company trend
+  let initialStroke = '#f59e42'; // amber
+  if (initialWatchlist.length > 0) {
+    const firstCompany = companies.find(c => c.name.toUpperCase() === initialWatchlist[0].symbol);
+    let trend = 'neutral';
+    if (firstCompany) {
+      if (firstCompany.trend) trend = firstCompany.trend;
+      else if (firstCompany.rating === 'Overweight') trend = 'up';
+      else if (firstCompany.rating === 'Underweight') trend = 'down';
+    }
+    if (trend === 'up') initialStroke = '#22c55e';
+    else if (trend === 'down') initialStroke = '#ef4444';
+  }
+  const [stroke, setStroke] = useState(initialStroke);
   const [chartTitle, setChartTitle] = useState(watchlistItems.length > 0 ? watchlistItems[0].symbol : '');
 
   // Keep chartTitle in sync with watchlistItems
@@ -550,15 +568,30 @@ const TradingDashboard = () => {
   });
 
   // Function to generate random price data for a ticker
-  const generateTickerData = (basePrice) => {
+  // Modified: Accepts rating, makes x axis data green and ends with an increase if overweight
+  const generateTickerData = (basePrice, rating) => {
     const hourlyData = [];
     let currentPrice = basePrice;
-    
     for (let i = 19; i <= 23; i++) {
-      currentPrice = currentPrice * (1 + (Math.random() - 0.5) * 0.02); // 2% max change
+      let change = 0;
+      if (rating === 'Overweight') {
+        if (i === 23) {
+          // Ensure last value is higher than base
+          change = Math.abs(Math.random() * 0.03 * basePrice) + 0.01 * basePrice;
+        } else {
+          change = (Math.random() - 0.3) * 0.02 * basePrice; // bias up
+        }
+      } else {
+        change = (Math.random() - 0.5) * 0.02 * basePrice;
+      }
+      currentPrice += change;
+      if (i === 23 && rating === 'Overweight' && currentPrice <= basePrice) {
+        currentPrice = basePrice + Math.abs(Math.random() * 0.03 * basePrice) + 0.01 * basePrice;
+      }
       hourlyData.push({
         time: `${i}:00`,
-        value: Math.round(currentPrice * 100) / 100
+        value: Math.round(currentPrice * 100) / 100,
+        color: rating === 'Overweight' ? '#22c55e' : undefined // green for overweight
       });
     }
     return hourlyData;
@@ -672,23 +705,30 @@ const TradingDashboard = () => {
   }, async ({ ticker }) => {
       trackGAEvent('server_tool_execution', { tool: 'addToWatchlist', ticker });
     console.log('addToWatchlist called with ticker:', ticker);
-    
     // Generate new ticker data
     const price = Math.round(Math.random() * 100000) / 100;
     const change = Math.round((Math.random() * 4 - 2) * 100) / 100;
     const color = change >= 0 ? 'green' : 'red';
-    
-    // Generate new chart data based on the price
-    const newChartData = generateTickerData(price);
+    // Find company rating and trend if available
+    let rating = 'Neutral';
+    let trend = 'neutral';
+    const company = companies.find(c => c.name.toUpperCase() === ticker.toUpperCase());
+    if (company) {
+      if (company.rating) rating = company.rating;
+      if (company.trend) trend = company.trend;
+      else if (company.rating === 'Overweight') trend = 'up';
+      else if (company.rating === 'Underweight') trend = 'down';
+      else trend = 'neutral';
+    }
+    const newChartData = generateTickerData(price, rating);
     setData(newChartData);
-    
-    // Generate a new color for the chart
-    const randomColor = `#${Math.floor(Math.random()*16777215).toString(16).padStart(6,'0')}`;
-    setStroke(randomColor);
-    
+    // Set stroke color based on trend
+    let strokeColor = '#f59e42'; // amber
+    if (trend === 'up') strokeColor = '#22c55e';
+    else if (trend === 'down') strokeColor = '#ef4444';
+    setStroke(strokeColor);
     // Update chart title
     setChartTitle(ticker);
-    
     // Remove any existing instance and add the new one
     setWatchlistItems(prev => {
       // Filter out any existing instance of this ticker
@@ -699,7 +739,6 @@ const TradingDashboard = () => {
         { symbol: ticker, price, change, color }
       ];
     });
-    
     showAlert(`Added ${ticker} to watchlist and updated chart`, 'success');
     return { content: [{ type: 'text', text: `Added ${ticker} to watchlist and updated chart display.` }] };
   });
@@ -1542,10 +1581,24 @@ const TradingDashboard = () => {
                     stroke={stroke}
                     watchlistItems={watchlistItems}
                     onWatchlistItemClick={(item) => {
-                      const newChartData = generateTickerData(item.price);
+                      // Find company rating and trend if available
+                      let rating = 'Neutral';
+                      let trend = 'neutral';
+                      const company = companies.find(c => c.name.toUpperCase() === item.symbol.toUpperCase());
+                      if (company) {
+                        if (company.rating) rating = company.rating;
+                        if (company.trend) trend = company.trend;
+                        else if (company.rating === 'Overweight') trend = 'up';
+                        else if (company.rating === 'Underweight') trend = 'down';
+                        else trend = 'neutral';
+                      }
+                      const newChartData = generateTickerData(item.price, rating);
                       setData(newChartData);
                       setChartTitle(item.symbol);
-                      const strokeColor = item.color === 'green' ? '#22c55e' : '#ef4444';
+                      // Set stroke color based on trend
+                      let strokeColor = '#f59e42'; // amber
+                      if (trend === 'up') strokeColor = '#22c55e';
+                      else if (trend === 'down') strokeColor = '#ef4444';
                       setStroke(strokeColor);
                       showAlert(`Updated chart to show ${item.symbol}`, 'success');
                     }}

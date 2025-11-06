@@ -9,8 +9,15 @@ const MarketsGraph = ({ chartTitle, data, stroke, watchlistItems, onWatchlistIte
       <ResponsiveContainer width="100%" height="90%">
         <LineChart data={data}>
           <XAxis dataKey="time" stroke="#6B7280" />
-          <YAxis domain={["dataMin - 5", "dataMax + 5"]} stroke="#6B7280" />
-          <Tooltip contentStyle={{ backgroundColor: "#1F2937", border: "none" }} />
+          <YAxis 
+            domain={["dataMin - 5", "dataMax + 5"]} 
+            stroke="#6B7280" 
+            tickFormatter={v => `$${v.toLocaleString()}`}
+          />
+          <Tooltip 
+            contentStyle={{ backgroundColor: "#1F2937", border: "none" }}
+            formatter={(value) => [`$${value.toLocaleString()}`, 'Value']}
+          />
           <Line type="monotone" dataKey="value" stroke={stroke} strokeWidth={2} dot={false} />
         </LineChart>
       </ResponsiveContainer>
