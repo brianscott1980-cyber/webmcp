@@ -2,7 +2,7 @@ const initialArticleContent = {
   html: `
   <div class="max-w-4xl mx-auto px-4 py-8 bg-gray-800 shadow-lg rounded-lg border border-gray-800">
       <header class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI Market Analysis Report</h1>
+        <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI: A Narrative Market Review</h1>
   <h2 class="text-xl text-gray-400">October 7, 2025 - Markets Research</h2>
       </header>
 

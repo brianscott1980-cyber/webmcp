@@ -198,7 +198,7 @@ const TradingDashboard = () => {
     // Find all h3 and h4 titles and add indicators (unchanged)
     const titles = doc.querySelectorAll('h3:not(.text-4xl), h4');
     titles.forEach(title => {
-      if (title.textContent.trim() === "OpenAI Market Analysis Report") return;
+      if (title.textContent.trim() === "OpenAI: A Narrative Market Review") return;
       const sectionDiv = title.closest('div[id]');
       const sectionId = sectionDiv ? sectionDiv.id : '';
       const isRead = readSections[sectionId] || false;
@@ -495,7 +495,7 @@ const TradingDashboard = () => {
   //   { name: 'Dow 30', value: 39150.34, change: 0.04, color: 'green', flag: '🇺🇸' },
   //   { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
   // ];
-  const [title, setTitle] = useState('OpenAI Market Analysis Report');
+  const [title, setTitle] = useState('OpenAI: A Narrative Market Review');
   // Set initial watchlist to 3 non-private companies with their target prices
   const nonPrivateCompanies = companies.filter(c => !c.isPrivate).slice(0, 3);
   const initialWatchlist = nonPrivateCompanies.map(company => ({

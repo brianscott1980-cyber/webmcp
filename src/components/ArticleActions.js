@@ -167,7 +167,7 @@ const ArticleActions = ({
         
         {/* Center area for company details or market news when sticky */}
         <div className="flex-1 flex justify-center items-center overflow-hidden relative">
-          {/* Company Information */}
+          {/* Company Information or Market News */}
           <div 
             className={`flex items-center space-x-3 text-gray-300 transform transition-all duration-300 ease-in-out absolute inset-0 justify-center
               ${isSticky && activeCompany
@@ -229,6 +229,25 @@ const ArticleActions = ({
                     </div>
                   </>
                 )}
+              </>
+            )}
+          </div>
+          {/* Market News when no company is active */}
+          <div
+            className={`flex items-center space-x-3 text-blue-300 transform transition-all duration-300 ease-in-out absolute inset-0 justify-center
+              ${isSticky && !activeCompany && activeMarketNews
+                ? 'translate-y-0 opacity-100' 
+                : '-translate-y-full opacity-0'}`}
+          >
+            {activeMarketNews && !activeCompany && (
+              <>
+                <span className="text-xs font-semibold uppercase tracking-wide">Market News</span>
+                <span className="text-sm font-medium">{activeMarketNews.title}</span>
+                <span className="text-xs text-blue-400">{activeMarketNews.content}</span>
+                <button
+                  className="ml-2 px-2 py-0.5 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded"
+                  onClick={() => onOpenMarketNews(activeMarketNews)}
+                >Go to Section</button>
               </>
             )}
           </div>

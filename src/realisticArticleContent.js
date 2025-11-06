@@ -2,7 +2,7 @@ const realisticArticleContent = {
   html: `
   <div class="max-w-4xl mx-auto px-4 py-8 bg-gray-800 shadow-lg rounded-lg border border-gray-800">
       <header class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI Market Analysis Report</h1>
+        <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI: A Narrative Market Review</h1>
         <h2 class="text-xl text-gray-400">October 7, 2025 - Markets Research</h2>
       </header>
       <div id="executive-summary" class="mb-12 bg-gray-900 p-6 rounded-lg border border-blue-900 transition-colors duration-500">
@@ -28,9 +28,15 @@ const realisticArticleContent = {
         <p class="text-gray-300 leading-relaxed mb-6">
           Financially, OpenAI is on a remarkable trajectory. Revenue is expected to reach $200 billion by 2030, up from $13 billion in 2025, with a projected CAGR of 73% over the next five years. However, this growth comes with significant infrastructure costs and an anticipated cash burn of $115 billion between 2025 and 2029—a challenge the company is addressing through careful planning and strategic investment. The company’s partnership with Oracle exceeds $300 billion over five years, and the expanded CoreWeave agreement now totals $22.4 billion, underscoring the scale of OpenAI’s ambitions and the capital required to sustain them.
         </p>
+        <div class="flex justify-center my-6">
+          <img src="webmcp/assets/Chart1.png" alt="OpenAI Projected Burn Rate Chart" class="rounded-lg border border-gray-700 shadow-lg max-w-xl w-full" />
+        </div>
         <p class="text-gray-300 leading-relaxed mb-6">
           The company's market strategy is multifaceted, balancing innovation in consumer-facing products with the expansion of enterprise partnerships. OpenAI's focus on AI infrastructure development and continuous product improvement has resulted in a growing user base and enhanced capabilities for clients across industries. The company’s ability to attract a diverse demographic—now with an even gender split and nearly half of messages from users under 26—positions it well to capture the “AI-native” generation and drive disruption of traditional e-commerce and media modalities.
         </p>
+        <div class="flex justify-center my-6">
+          <img src="webmcp//assets/Chart2.png" alt="OpenAI Profit and Burn Chart" class="rounded-lg border border-gray-700 shadow-lg max-w-xl w-full" />
+        </div>
         <p class="text-gray-300 leading-relaxed mb-6">
           Risks remain, including regulatory scrutiny, increasing competition, and the need for ongoing innovation. The FTC recently launched an inquiry into consumer-facing AI chatbots, including OpenAI, following concerns about child safety and transparency. OpenAI has responded by introducing greater parental controls and age-prediction systems to provide a safer experience for younger users. The company’s pending transition to a Public Benefit Corporation (PBC) also introduces uncertainty, though a recent memorandum of understanding with Microsoft has helped to derisk this process.
         </p>
