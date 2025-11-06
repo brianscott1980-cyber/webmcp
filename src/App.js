@@ -1,5 +1,5 @@
 import InTheNewsPanel from './components/InTheNewsPanel';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TabServerTransport } from '@mcp-b/transports';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -23,6 +23,17 @@ import CompanyPerformanceChart from './components/CompanyPerformanceChart';
 import useReadSections from './hooks/useReadSections';
 import MarketsGraph from "./components/MarketsGraph";
 import './theme.css';
+
+const ARTICLE_CHART_IMAGES = [
+  {
+    src: 'webmcp/assets/Chart1.png',
+    alt: 'OpenAI Projected Burn Rate Chart'
+  },
+  {
+    src: 'webmcp/assets/Chart2.png',
+    alt: 'OpenAI Profit and Burn Chart'
+  }
+];
 
 const TradingDashboard = () => {
  
@@ -243,12 +254,80 @@ const TradingDashboard = () => {
   }, [readSections, articleType]);
   const [annotations, setAnnotations] = useState({});
   const [snippets, setSnippets] = useState([]);
+  const [isChartGalleryOpen, setIsChartGalleryOpen] = useState(false);
+  const [chartGalleryIndex, setChartGalleryIndex] = useState(0);
+
+  const handleCloseChartGallery = useCallback(() => {
+    setIsChartGalleryOpen(false);
+  }, []);
+
+  const showNextChartImage = useCallback(() => {
+    setChartGalleryIndex(prev => (prev + 1) % ARTICLE_CHART_IMAGES.length);
+  }, []);
+
+  const showPreviousChartImage = useCallback(() => {
+    setChartGalleryIndex(prev => (prev - 1 + ARTICLE_CHART_IMAGES.length) % ARTICLE_CHART_IMAGES.length);
+  }, []);
+
+  const activeChartImage = ARTICLE_CHART_IMAGES[chartGalleryIndex] || ARTICLE_CHART_IMAGES[0];
 
   
   // Effect to highlight company names whenever article content changes
   React.useEffect(() => {
     highlightTermInArticle();
   }, []); // Run once on mount
+
+  // Attach click handlers to article chart images for gallery overlay
+  useEffect(() => {
+    const container = document.querySelector('.article-content');
+    if (!container) return;
+
+    const handleChartClick = (event) => {
+      const target = event.target.closest('.article-chart-image');
+      if (!target) return;
+      const index = parseInt(target.getAttribute('data-chart-index') || '0', 10);
+      const boundedIndex = Number.isNaN(index)
+        ? 0
+        : Math.min(Math.max(index, 0), ARTICLE_CHART_IMAGES.length - 1);
+      setChartGalleryIndex(boundedIndex);
+      setIsChartGalleryOpen(true);
+    };
+
+    container.addEventListener('click', handleChartClick);
+    return () => {
+      container.removeEventListener('click', handleChartClick);
+    };
+  }, [articleContent]);
+
+  // Keyboard navigation for gallery overlay
+  useEffect(() => {
+    if (!isChartGalleryOpen) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        handleCloseChartGallery();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        showNextChartImage();
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        showPreviousChartImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isChartGalleryOpen, handleCloseChartGallery, showNextChartImage, showPreviousChartImage]);
+
+  // Prevent background scrolling when gallery is open
+  useEffect(() => {
+    if (!isChartGalleryOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isChartGalleryOpen]);
   const [annotationPrompt, setAnnotationPrompt] = useState({ show: false, text: '', range: null });
 
   // Related articles state
@@ -1828,6 +1907,69 @@ const TradingDashboard = () => {
             articleContent={articleContent}
             showAlert={showAlert}
           />
+        </div>
+      )}
+
+      {isChartGalleryOpen && activeChartImage && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center px-6 py-8"
+          onClick={handleCloseChartGallery}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chart gallery viewer"
+        >
+          <div
+            className="relative max-w-5xl w-full"
+            onClick={event => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="absolute -top-12 right-0 text-gray-300 hover:text-white transition-colors"
+              onClick={handleCloseChartGallery}
+              aria-label="Close chart gallery"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="relative overflow-hidden rounded-2xl border border-gray-700 bg-gray-900 shadow-2xl">
+              <img
+                src={activeChartImage.src}
+                alt={activeChartImage.alt}
+                className="w-full h-auto max-h-[80vh] object-contain"
+              />
+              {ARTICLE_CHART_IMAGES.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 left-0 w-16 flex items-center justify-center bg-gradient-to-r from-black/60 to-transparent text-gray-200 hover:text-white"
+                    onClick={showPreviousChartImage}
+                    aria-label="View previous chart"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 w-16 flex items-center justify-center bg-gradient-to-l from-black/60 to-transparent text-gray-200 hover:text-white"
+                    onClick={showNextChartImage}
+                    aria-label="View next chart"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between text-sm text-gray-300">
+              <div>{chartGalleryIndex + 1} / {ARTICLE_CHART_IMAGES.length}</div>
+              <div className="text-gray-400">{activeChartImage.alt}</div>
+            </div>
+          </div>
         </div>
       )}
     </div>
