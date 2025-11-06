@@ -197,10 +197,18 @@ const ArticleActions = ({
                     </svg>
                   </button>
                 </div>
-                {activeCompany.targetPrice && (
+                {/* Show price target only for non-private companies */}
+                {activeCompany.type && !activeCompany.type.toLowerCase().includes('private') && activeCompany.targetPrice && (
                   <>
                     <span className="text-gray-500">•</span>
                     <span className="text-xs">Target: {activeCompany.targetPrice}</span>
+                  </>
+                )}
+                {/* Show neutral pill for private companies */}
+                {activeCompany.type && activeCompany.type.toLowerCase().includes('private') && (
+                  <>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-gray-700 text-yellow-400 font-semibold">Private Company</span>
                   </>
                 )}
                 {activeCompany.analysts && activeCompany.analysts[0] && (

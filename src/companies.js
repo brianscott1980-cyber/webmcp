@@ -2,6 +2,7 @@ const companies = [
   {
     name: "OpenAI",
     type: "AI Research & Development",
+    isPrivate: true,
     analysts: [
       {
         name: "Brenda Duverce",
@@ -22,8 +23,8 @@ const companies = [
         phone: "(1-212) 270-3679"
       }
     ],
-    rating: "Overweight", 
-    targetPrice: "$740",
+    rating: "Neutral", 
+    targetPrice: "$270",
     partnerships: [
       {
         partner: "NVIDIA",
@@ -55,6 +56,7 @@ const companies = [
   {
     name: "Anthropic",
     type: "AI Research & Safety",
+    isPrivate: true,
     analysts: [
       {
         name: "Brenda Duverce",
@@ -116,7 +118,7 @@ const companies = [
       }
     ],
     rating: "Overweight", // Market leader in AI hardware
-    targetPrice: "$980", // AI compute demand and market dominance
+    targetPrice: "$215", // AI compute demand and market dominance
     partnerships: [
       {
         partner: "OpenAI",
@@ -128,6 +130,7 @@ const companies = [
   {
     name: "Databricks",
     type: "Data & AI Platform",
+    isPrivate: true,
     analysts: [
       {
         name: "Brenda Duverce",
@@ -185,8 +188,8 @@ const companies = [
         phone: "(1-212) 270-3679"
       }
     ],
-    rating: "Underweight", // Facing strong cloud competition
-    targetPrice: "$115", // Cloud market share challenges
+    rating: "Neutral", // Facing strong cloud competition
+    targetPrice: "$270", // Cloud market share challenges
     partnerships: [
       {
         partner: "OpenAI",
@@ -219,7 +222,7 @@ const companies = [
       }
     ],
     rating: "Overweight", // Private company
-    targetPrice: "$289",
+    targetPrice: "$135",
     partnerships: [
       {
         partner: "OpenAI",

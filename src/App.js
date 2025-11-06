@@ -253,12 +253,12 @@ const TradingDashboard = () => {
     subtitle: "Comprehensive review of OpenAI's market position and future outlook",
     date: "October 10, 2025",
     readingTime: 12,
-    author: "Brian Scott",
+  author: "Brenda Duverce",
     category: "Technology",
     keyStats: [
-      { label: "Market Share", value: "38.8%", trend: "up" },
-      { label: "Revenue Target", value: "$200B", trend: "up" },
-      { label: "Partnership Value", value: "$100M", trend: "neutral" }
+      { label: "2030 Revenue Target", value: "$200B", trend: "up" },
+      { label: "5 Year CAGR", value: "73%", trend: "up" },
+      { label: "4 Year Burn", value: "$115B", trend: "down" }
     ]
   });
   const [selectionPopup, setSelectionPopup] = useState({
@@ -1692,18 +1692,24 @@ const TradingDashboard = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 12v-2a4 4 0 1 1 8 0v2m-8 0h8m-8 0v2a4 4 0 0 0 8 0v-2"/><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 16v2m0 0h.01"/></svg>
                       </span>
                     </div>
-                    {company.rating !== "Not Rated" && (
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        company.rating === "Overweight" ? 'bg-green-900 text-green-300' : 
-                        company.rating === "Underweight" ? 'bg-red-900 text-red-300' : 
-                        'bg-gray-600 text-gray-300'
-                      }`}>
-                        {company.rating}
-                      </span>
+                    {company.isPrivate ? (
+                      <span className="text-xs px-2 py-1 rounded bg-gray-600 text-gray-200">Private</span>
+                    ) : (
+                      company.rating !== "Not Rated" && (
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          company.rating === "Overweight" ? 'bg-green-900 text-green-300' : 
+                          company.rating === "Underweight" ? 'bg-red-900 text-red-300' : 
+                          'bg-amber-600 text-amber-300'
+                        }`}>
+                          {company.rating}
+                        </span>
+                      )
                     )}
                   </div>
 
-                  <div className="text-xs text-gray-400 mb-3">{company.type}</div>
+                  <div className="text-xs text-gray-400 mb-3">
+                    {company.type}
+                  </div>
                  
                   {/* Key Products */}
                   {(company.products || company.keyProducts) && (

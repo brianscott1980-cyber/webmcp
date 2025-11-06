@@ -73,6 +73,7 @@ const CompanyModal = ({ company, onClose, articleContent, showAlert }) => {
 
   return (
     <div className="relative bg-gray-800 rounded-lg shadow-2xl border border-blue-500/50 p-2.5 backdrop-blur-sm bg-opacity-95 max-w-sm space-y-4">
+      {/* Company Type Distinction removed as per user request */}
       <div className="space-y-2.5">
         <div className="flex justify-between items-start">
           <h3 className="text-xs font-semibold text-blue-400">{company.name} Mentions</h3>
@@ -155,8 +156,17 @@ const CompanyModal = ({ company, onClose, articleContent, showAlert }) => {
         </div>
 
         {/* Market Performance */}
-        {company.rating && <MarketPerformance company={company} />}
+        {/* Only show for Equity / Credit Companies */}
+        {company.type && !company.isPrivate && company.rating && (
+          <MarketPerformance company={company} />
+        )}
 
+        {/* For Private Companies, show note about no price target/weight */}
+        {company.type && company.isPrivate && (
+          <div className="border-t border-gray-700 pt-2.5 mb-2">
+            <div className="text-xs text-yellow-400">No price target or weight is assigned to private companies.</div>
+          </div>
+        )}
         {/* Subscription Options Section */}
         <div className="border-t border-gray-700 pt-2.5 space-y-2">
           <h4 className="text-xs font-semibold text-blue-400 mb-2">Subscriptions</h4>

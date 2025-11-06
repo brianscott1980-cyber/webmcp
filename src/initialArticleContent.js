@@ -3,7 +3,7 @@ const initialArticleContent = {
   <div class="max-w-4xl mx-auto px-4 py-8 bg-gray-800 shadow-lg rounded-lg border border-gray-800">
       <header class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-100 mb-2">OpenAI Market Analysis Report</h1>
-  <h2 class="text-xl text-gray-400">October 7, 2025 - Atlas Bank Markets Research</h2>
+  <h2 class="text-xl text-gray-400">October 7, 2025 - Markets Research</h2>
       </header>
 
       <div id="key-strategic-developments" class="mb-12 transition-colors duration-500">
@@ -31,7 +31,7 @@ const initialArticleContent = {
           <div id="market-competition" class="bg-gray-900 p-6 rounded-lg border border-purple-900 transition-colors duration-500">
             <h4 class="text-lg font-semibold text-purple-400 mb-4">Market Competition</h4>
             <ul class="list-disc pl-5 space-y-2 text-gray-300">
-              <li>GPT-5 achieved 38.8% win/tie rate vs human experts</li>
+              <li>5 Year CAGR at 73%</li>
               <li>Notable competition from Anthropic's Claude Opus 4.1 (47.6% win/tie rate)</li>
               <li>Strategic partnership with Databricks valued at $100mn</li>
             </ul>

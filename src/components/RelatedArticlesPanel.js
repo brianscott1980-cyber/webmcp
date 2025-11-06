@@ -51,8 +51,7 @@ const RelatedArticlesPanel = ({ articles = [], onArticleClick, currentUser }) =>
                 View all by Brenda Duverce
               </h3>
               <p className="text-sm text-gray-400 mb-3 leading-relaxed">
-                Lead AI & Technology Analyst specializing in OpenAI, AGI developments, and emerging AI markets. 
-                Regular coverage of AI infrastructure, market dynamics, and competitive analysis.
+                Senior Analyst, Private Company Research, J.P. Morgan. Former equity strategist in AI & tech. BA Howard, MPP Michigan.
               </p>
               <div className="text-xs text-gray-500">
                 183 articles • Latest: OpenAI Q3 Market Analysis
