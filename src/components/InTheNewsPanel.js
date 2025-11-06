@@ -139,9 +139,9 @@ const InTheNewsPanel = ({ articles = defaultArticles }) => {
                         <span
                           key={n}
                           className={
-                            'w-2 h-2 rounded-full inline-block animate-pulse bg-gray-500/30'
+                            'w-3 h-3 rounded-full inline-block animate-pulse bg-blue-400/80 shadow-lg'
                           }
-                          style={{ marginRight: n < 5 ? 2 : 0 }}
+                          style={{ marginRight: n < 5 ? 4 : 0, animationDuration: '0.7s' }}
                         />
                       )))
                   }
