@@ -135,7 +135,31 @@ const TradingDashboard = () => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
 
-    // Market competition news examples
+    // Highlight company names in the article with a span for scroll detection
+    companies.forEach(company => {
+      const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+      let node;
+      while ((node = walker.nextNode())) {
+        const idx = node.textContent.toLowerCase().indexOf(company.name.toLowerCase());
+        if (idx !== -1) {
+          const before = node.textContent.slice(0, idx);
+          const match = node.textContent.slice(idx, idx + company.name.length);
+          const after = node.textContent.slice(idx + company.name.length);
+          const span = doc.createElement('span');
+          span.textContent = match;
+          span.setAttribute('data-company', company.name);
+          span.className = 'company-highlight';
+          // Replace the text node with before + span + after
+          const parent = node.parentNode;
+          if (before) parent.insertBefore(doc.createTextNode(before), node);
+          parent.insertBefore(span, node);
+          if (after) parent.insertBefore(doc.createTextNode(after), node);
+          parent.removeChild(node);
+        }
+      }
+    });
+
+    // Market competition news examples (unchanged)
     const marketNews = [
       {
         id: 'claude-competition',
@@ -153,7 +177,7 @@ const TradingDashboard = () => {
       }
     ];
 
-    // Function to check if section is in view
+    // Function to check if section is in view (unchanged)
     const checkMarketNewsVisibility = () => {
       const sections = marketNews.map(news => doc.getElementById(news.section));
       const visibleSection = sections.find(section => {
@@ -169,24 +193,18 @@ const TradingDashboard = () => {
         setActiveMarketNews(null);
       }
     };
-
-    // Add scroll event listener for market news detection
     window.addEventListener('scroll', checkMarketNewsVisibility);
 
-    // Find all h3 and h4 titles and add indicators
+    // Find all h3 and h4 titles and add indicators (unchanged)
     const titles = doc.querySelectorAll('h3:not(.text-4xl), h4');
     titles.forEach(title => {
-      // Skip the main article title
       if (title.textContent.trim() === "OpenAI Market Analysis Report") return;
-      
-      // Find the section ID from the parent div
       const sectionDiv = title.closest('div[id]');
       const sectionId = sectionDiv ? sectionDiv.id : '';
       const isRead = readSections[sectionId] || false;
-      
       const iconSpan = doc.createElement('span');
       iconSpan.className = 'inline-flex items-center ml-2';
-      iconSpan.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${isRead ? 'text-green-400' : 'text-gray-500/50'} transition-colors duration-300"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+      iconSpan.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"${isRead ? 'text-green-400' : 'text-gray-500/50'} transition-colors duration-300\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline></svg>`;
       title.appendChild(iconSpan);
     });
 
@@ -993,53 +1011,34 @@ const TradingDashboard = () => {
   // State for tracking the currently visible company
   const [visibleCompany, setVisibleCompany] = useState(null);
 
-  // Function to check for companies in viewport
-  const checkCompaniesInViewport = () => {
-    const articleContainer = document.querySelector('.prose');
-    if (!articleContainer) return;
-
-    // Get the viewport dimensions
-    const viewportHeight = window.innerHeight;
-    const topQuarter = viewportHeight * 0.25;
-
-    // Find all text nodes in the article
-    const walker = document.createTreeWalker(
-      articleContainer,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-
-    let closestCompany = null;
-    let closestDistance = Infinity;
-    let node;
-
-    while (node = walker.nextNode()) {
-      // Check if this text node contains any company names
-      for (const company of companies) {
-        if (node.textContent.toLowerCase().includes(company.name.toLowerCase())) {
-          const rect = node.parentElement.getBoundingClientRect();
-          const centerY = rect.top + (rect.height / 2);
-          
-          // Check if it's in the top quarter of the viewport
-          if (centerY > 0 && centerY <= topQuarter) {
-            const distanceFromIdeal = Math.abs(centerY - (topQuarter / 2));
-            if (distanceFromIdeal < closestDistance) {
-              closestDistance = distanceFromIdeal;
-              closestCompany = company;
-            }
+  // Detect which company highlight is in the top quarter of the viewport and update sticky bar
+  useEffect(() => {
+    const handleScroll = () => {
+      const highlights = document.querySelectorAll('.company-highlight');
+      let closest = null;
+      let closestDistance = Infinity;
+      const viewportHeight = window.innerHeight;
+      const topQuarter = viewportHeight * 0.25;
+      highlights.forEach(span => {
+        const rect = span.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        if (centerY > 0 && centerY <= topQuarter) {
+          const distance = Math.abs(centerY - (topQuarter / 2));
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closest = span.getAttribute('data-company');
           }
         }
+      });
+      if (closest) {
+        const companyObj = companies.find(c => c.name === closest);
+        setVisibleCompany(companyObj || null);
+      } else {
+        setVisibleCompany(null);
       }
-    }
-
-    setVisibleCompany(closestCompany);
-  };
-
-  // Add scroll event listener for company detection
-  useEffect(() => {
-    window.addEventListener('scroll', checkCompaniesInViewport);
-    return () => window.removeEventListener('scroll', checkCompaniesInViewport);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Handle text selection in the article
