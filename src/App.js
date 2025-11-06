@@ -483,8 +483,13 @@ const TradingDashboard = () => {
   const initialWatchlist = nonPrivateCompanies.map(company => ({
     symbol: company.name.toUpperCase(),
     price: parseFloat((company.targetPrice || '').replace(/[^\d.]/g, '')) || 0,
-    change: 0,
-    color: 'blue'
+    change:
+      company.rating === 'Overweight' ? 10 :
+      company.rating === 'Underweight' ? -10 :
+      (Math.round((Math.random() * 4 - 2) * 100) / 100), // Neutral: random between -2 and +2
+    color:
+      company.rating === 'Overweight' ? 'green' :
+      company.rating === 'Underweight' ? 'red' : 'amber'
   }));
   const [watchlistItems, setWatchlistItems] = useState(initialWatchlist);
   // Set initial stroke color based on first company trend
