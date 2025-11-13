@@ -1,107 +1,107 @@
-# Trading Dashboard
+# WebMCP Trading Dashboard Sandbox
 
-A modern, responsive trading dashboard built with React, Tailwind CSS, and Recharts. This project provides a sleek interface for viewing market summaries, stock indices, and watchlists.
+A React + Tailwind research experience that doubles as a **sandbox for testing the Model Context Protocol (MCP) through the WebMCP (MCP‑B) VS Code extension**. The app simulates an equity research workspace with realistic content, interactive market widgets, annotations, and a robust set of `server.tool` integrations you can invoke from WebMCP while the page is running.
 
-![Trading Dashboard Screenshot](http://www.marketcalls.in/wp-content/uploads/2024/06/Screenshot-2024-06-23-at-9.40.41 AM.png)
+![Trading Dashboard Screenshot](https://raw.githubusercontent.com/brianscott1980-cyber/webmcp/master/public/logo512.png)
 
-## Features
+## Why this sandbox exists
 
-- Real-time market summary display
-- Interactive line chart for visualizing market trends
-- Customizable watchlist
-- Responsive design for desktop and mobile devices
-- Country flags for quick visual reference of market indices
+WebMCP lets you call `server.tool` functions—just like native MCP clients—directly inside the browser preview that the extension manages. This project provides:
 
-## Technologies Used
+- A rich UI surface (article reader, market dashboards, overlays) to observe tool side-effects.
+- A wide catalog of MCP tools (navigation, theming, content injection, gallery control, etc.).
+- A safe environment for experimenting with request/response payloads before wiring real data providers.
 
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Recharts](https://recharts.org/) for data visualization
-- [Lucide React](https://lucide.dev/) for icons
+Use it to prototype new MCP tools, validate prompt flows, or demo capabilities to teammates without touching production systems.
 
-## Getting Started
+## Highlights
+
+- **Market intelligence workspace** – Summaries, watchlists, market performance charts, and a full AI market analysis article with side panels.
+- **Reader productivity toolkit** – Snippet capture, annotations, sticky article actions, related research recommendations, and company modal previews.
+- **Interactive visual assets** – Embedded charts open in a high-resolution gallery overlay that supports mouse, keyboard, and MCP-triggered navigation.
+- **MCP tool coverage** – Dozens of tools exercise DOM manipulation, theme control, data refresh, and navigation flows so you can see live feedback when calling them via WebMCP.
+
+## WebMCP sandbox testing
+
+1. Install the **MCP-B (WebMCP)** VS Code extension.
+2. Start the development server (`npm start`) and open the preview in WebMCP.
+3. Use the extension’s command palette or side panel to invoke tools exposed by the in-page `McpServer`.
+4. Observe the dashboard update in real time—tweak inputs, retry commands, and iterate on new tools quickly.
+
+### Notable `server.tool` commands
+
+| Tool | What it does |
+| --- | --- |
+| `toggleDayNightMode`, `setNightMode`, `setDayMode` | Switches the reading theme for accessibility testing. |
+| `updateGraphForTicker` | Regenerates market data, recolors the line chart, and updates headings. |
+| `changeTitle` | Rebrands the article header and surfaces alerts. |
+| `scrollPage`, `autoScroll`, `stopAutoScroll` | Automates navigation to validate long-form reading scenarios. |
+| `addToWatchlist`, `removeFromWatchlist`, `clearWatchlist` | Exercises list manipulation and alert messaging. |
+| `subscribeToAuthor`, `saveArticle`, `emailArticle` | Mimics workflow actions captured by analytics hooks. |
+| `getRecommendedArticles`, `showCompany`, `highlightArticleContent` | Shows how tools can query DOM state and surface contextual UI. |
+| `openChartGallery`, `navigateChartGallery` | Drives the new chart lightbox at native resolution. |
+
+> Tip: Every tool logs `trackGAEvent` calls, making it easy to confirm telemetry wiring while iterating.
+
+## Getting started locally
 
 ### Prerequisites
 
-- Node.js (v14.0.0 or later)
-- npm (v6.0.0 or later)
+- Node.js 18+ (LTS recommended)
+- npm 9+
 
-### Installation
+### Install & run
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/marketcalls/trading-dashboard.git
-   ```
-
-2. Navigate to the project directory:
-   ```sh
-   cd trading-dashboard
-   ```
-
-3. Install dependencies:
-   ```sh
-   npm install
-   ```
-
-4. Start the development server:
-   ```sh
-   npm start
-   ```
-
-5. Open your browser and visit `http://localhost:3000` to view the dashboard.
-
-## Usage
-
-The trading dashboard displays market summaries for major indices, an interactive chart, and a watchlist. Users can:
-
-- View real-time market data (mock data used in this demo)
-- Interact with the chart to view specific data points
-- Customize the watchlist (functionality to be implemented)
-
-## Customization
-
-### Adding New Indices
-
-To add new indices to the market summary, edit the `indices` array in the `TradingDashboard` component:
-
-```javascript
-const indices = [
-  // ... existing indices
-  { name: 'New Index', value: 1000.00, change: 0.5, color: 'green', flag: '🇺🇸' },
-];
+```bash
+git clone https://github.com/brianscott1980-cyber/webmcp.git
+cd webmcp
+npm install
+npm start
 ```
 
-### Modifying the Watchlist
+The dev server defaults to `http://localhost:3000`. Open it directly or through the WebMCP preview panel inside VS Code.
 
-To modify the watchlist, edit the `watchlistItems` array in the `TradingDashboard` component:
+### Available scripts
 
-```javascript
-const watchlistItems = [
-  // ... existing items
-  { symbol: 'NEW', price: 100.00, change: 1.5, color: 'green' },
-];
+- `npm start` – launches the CRA development server.
+- `npm test` – runs Jest tests in watch mode (used for smoke validation).
+- `npm run build` – creates a production build.
+
+## Project structure
+
 ```
+src/
+  App.js                    # Main dashboard with MCP server tooling
+  realisticArticleContent.js# Rich article markup with chart metadata
+  components/               # Panels, dialogs, overlays, charts, prompts
+  hooks/useReadSections.js  # Read-progress tracking for article sections
+public/assets/Chart*.png    # High-resolution charts used in the gallery
+```
+
+Key UI surfaces include `ArticleActions`, `ArticleSidePanel`, `CompanyModal`, `MarketsGraph`, and the chart gallery overlay rendered from `App.js`.
+
+## Working with assets & content
+
+- Article HTML lives in `realisticArticleContent.js` and includes `data-chart-index` attributes so the gallery can map images declaratively.
+- Chart images reside in `public/assets`. This allows direct use of `/assets/Chart1.png` paths in rendered markup (Webpack serves them statically).
+- You can add new MCP tools by extending the `server.tool` registrations in `App.js`—they immediately appear to WebMCP without additional wiring.
+
+## Validation status
+
+During documentation update, automated tests were **not** re-run. Use `npm test` or `npm run lint` (if configured) before committing further changes.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Issues and pull requests are welcome. If you introduce new MCP tools or UI behaviors, please update this README so other testers know what to try.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/my-update`).
+3. Commit your changes with context (`git commit -m "Add new MCP sandbox tool"`).
+4. Push and open a pull request describing the new behaviors.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Acknowledgments
-
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Recharts](https://recharts.org/)
-- [Lucide React](https://lucide.dev/)
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
 
 
 
