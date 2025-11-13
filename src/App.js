@@ -644,6 +644,7 @@ const TradingDashboard = () => {
     return { content: [{ type: 'text', text: `Day mode toggled for comfortable reading.` }] };
   });
 
+
   server.tool('updateGraphForTicker', 'Update the graph data and stroke color for a ticker', {
     ticker: z.string()
   }, async ({ ticker }) => {
@@ -763,6 +764,47 @@ const TradingDashboard = () => {
       }
     };
     return { content: [{ type: 'text', text: `Auto-scroll started (${direction}, ${speed}). Call window.__stopAutoScroll() to stop.` }] };
+  });
+  server.tool('openChartGallery', 'Open the article chart gallery overlay at a specific chart image', {
+    index: z.number().int().min(0).optional()
+  }, async ({ index }) => {
+      trackGAEvent('server_tool_execution', { tool: 'openChartGallery', index });
+    if (ARTICLE_CHART_IMAGES.length === 0) {
+      return { content: [{ type: 'text', text: 'No chart images are available to display.' }] };
+    }
+    const maxIndex = ARTICLE_CHART_IMAGES.length - 1;
+    const resolvedIndex = typeof index === 'number' && !Number.isNaN(index)
+      ? Math.min(Math.max(index, 0), maxIndex)
+      : 0;
+    setChartGalleryIndex(resolvedIndex);
+    setIsChartGalleryOpen(true);
+    return { content: [{ type: 'text', text: `Opened chart gallery at image ${resolvedIndex + 1} of ${ARTICLE_CHART_IMAGES.length}.` }] };
+  });
+  server.tool('navigateChartGallery', 'Navigate the article chart gallery forward or backward', {
+    direction: z.enum(['next', 'previous', 'forward', 'back'])
+  }, async ({ direction }) => {
+      trackGAEvent('server_tool_execution', { tool: 'navigateChartGallery', direction });
+    if (ARTICLE_CHART_IMAGES.length === 0) {
+      return { content: [{ type: 'text', text: 'No chart images are available to navigate.' }] };
+    }
+
+    let updatedIndex = chartGalleryIndex;
+    const goNext = direction === 'next' || direction === 'forward';
+
+    setChartGalleryIndex(prev => {
+      const maxIndex = ARTICLE_CHART_IMAGES.length;
+      const newIndex = goNext
+        ? (prev + 1) % maxIndex
+        : (prev - 1 + maxIndex) % maxIndex;
+      updatedIndex = newIndex;
+      return newIndex;
+    });
+
+    if (!isChartGalleryOpen) {
+      setIsChartGalleryOpen(true);
+    }
+
+    return { content: [{ type: 'text', text: `Showing image ${(updatedIndex ?? chartGalleryIndex) + 1} of ${ARTICLE_CHART_IMAGES.length}.` }] };
   });
 
    // Tool to stop auto-scroll

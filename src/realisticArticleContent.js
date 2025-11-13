@@ -25,12 +25,12 @@ const realisticArticleContent = {
         <p class="text-gray-300 leading-relaxed mb-6">
           Competition in the AI space has intensified, with Anthropic's Claude Opus 4.1 achieving a notable 47.6% win/tie rate against human experts. OpenAI's own GPT-5, with a 38.8% win/tie rate, continues to push the boundaries of what is possible, while strategic partnerships with industry leaders like Databricks further strengthen its market position. The recent partnership with Databricks, valued at $100 million, will make OpenAI models available to over 20,000 Databricks customers, expanding distribution and enterprise reach. As model capabilities expand and distribution channels converge, the intersection of price and performance is becoming an increasingly pivotal factor for enterprise adoption.
         </p>
+         <div class="flex justify-center my-6">
+          <img src="webmcp/assets/Chart1.png" alt="OpenAI Projected Burn Rate Chart" class="article-chart-image rounded-lg border border-gray-700 shadow-lg max-w-xl w-full cursor-zoom-in" data-chart-index="0" />
+        </div>
         <p class="text-gray-300 leading-relaxed mb-6">
           Financially, OpenAI is on a remarkable trajectory. Revenue is expected to reach $200 billion by 2030, up from $13 billion in 2025, with a projected CAGR of 73% over the next five years. However, this growth comes with significant infrastructure costs and an anticipated cash burn of $115 billion between 2025 and 2029—a challenge the company is addressing through careful planning and strategic investment. The company’s partnership with Oracle exceeds $300 billion over five years, and the expanded CoreWeave agreement now totals $22.4 billion, underscoring the scale of OpenAI’s ambitions and the capital required to sustain them.
         </p>
-        <div class="flex justify-center my-6">
-          <img src="webmcp/assets/Chart1.png" alt="OpenAI Projected Burn Rate Chart" class="article-chart-image rounded-lg border border-gray-700 shadow-lg max-w-xl w-full cursor-zoom-in" data-chart-index="0" />
-        </div>
         <p class="text-gray-300 leading-relaxed mb-6">
           The company's market strategy is multifaceted, balancing innovation in consumer-facing products with the expansion of enterprise partnerships. OpenAI's focus on AI infrastructure development and continuous product improvement has resulted in a growing user base and enhanced capabilities for clients across industries. The company’s ability to attract a diverse demographic—now with an even gender split and nearly half of messages from users under 26—positions it well to capture the “AI-native” generation and drive disruption of traditional e-commerce and media modalities.
         </p>
